@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/courseItemRoot"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="10dp"
+    android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/courseColorBar"
+        android:layout_width="5dp"
+        android:layout_height="56dp"
+        android:background="#8D74FF"
+        android:text="" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvCourseTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:text="教师书写与板书设计"
+            android:textColor="#1B1B1B"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvCourseSubtitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:text="思源楼（原主教学）314  胡湘海"
+            android:textColor="#333333"
+            android:textSize="13sp" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvTimeRange"
+        android:layout_width="58dp"
+        android:layout_height="match_parent"
+        android:includeFontPadding="false"
+        android:lines="2"
+        android:maxLines="2"
+        android:gravity="end|center_vertical"
+        android:text="14:30&#10;16:00"
+        android:textColor="#2D2D2D"
+        android:textSize="11sp"
+        android:lineSpacingExtra="1dp"
+        android:textStyle="bold" />
+
+</LinearLayout>

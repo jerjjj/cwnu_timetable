@@ -1,0 +1,82 @@
+# -----------------------------
+# General
+# -----------------------------
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.swp
+*.swo
+
+# -----------------------------
+# IDE / Editor
+# -----------------------------
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# -----------------------------
+# Flutter / Dart
+# -----------------------------
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub/
+.pub-cache/
+build/
+coverage/
+**/doc/api/
+**/ios/Flutter/.last_build_id
+
+# Flutter generated metadata (keep pubspec.lock for apps)
+.metadata
+
+# -----------------------------
+# Android
+# -----------------------------
+android/.gradle/
+android/.kotlin/
+android/local.properties
+android/**/build/
+android/app/debug/
+android/app/profile/
+android/app/release/
+android/app/src/main/jniLibs/
+
+# -----------------------------
+# iOS / macOS tool output
+# -----------------------------
+ios/Flutter/ephemeral/
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
+ios/Pods/
+ios/.symlinks/
+
+# -----------------------------
+# Rust
+# -----------------------------
+native/target/
+rust_backend/target/
+**/target/
+
+# -----------------------------
+# Python
+# -----------------------------
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# -----------------------------
+# Secrets / local env
+# -----------------------------
+.env
+.env.*
+
+# -----------------------------
+# Symbolication / Obfuscation
+# -----------------------------
+app.*.symbols
+app.*.map.json
