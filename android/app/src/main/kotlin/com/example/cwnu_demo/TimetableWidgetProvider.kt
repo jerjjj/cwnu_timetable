@@ -3,12 +3,36 @@ package com.example.cwnu_demo
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.widget.RemoteViews
 
 open class TimetableWidgetProvider : AppWidgetProvider() {
+    companion object {
+        fun refreshAllWidgets(context: Context) {
+            val appWidgetManager = AppWidgetManager.getInstance(context)
+            val providerClasses = listOf(
+                TimetableWidgetProvider::class.java,
+                TimetableWidgetSmallProvider::class.java,
+                TimetableWidgetLargeProvider::class.java,
+            )
+
+            providerClasses.forEach { providerClass ->
+                val componentName = ComponentName(context, providerClass)
+                val widgetIds = appWidgetManager.getAppWidgetIds(componentName)
+                if (widgetIds.isEmpty()) return@forEach
+
+                val updateIntent = Intent(context, providerClass).apply {
+                    action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+                    putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, widgetIds)
+                }
+                context.sendBroadcast(updateIntent)
+            }
+        }
+    }
+
     override fun onUpdate(
         context: Context,
         appWidgetManager: AppWidgetManager,
