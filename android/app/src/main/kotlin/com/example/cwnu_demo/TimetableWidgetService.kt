@@ -17,11 +17,13 @@ class TimetableWidgetFactory(
     private var courses: List<WidgetCourseInfo> = emptyList()
 
     override fun onCreate() {
+        TimetableWidgetDataSource.clearColorCache()
         courses = TimetableWidgetDataSource.loadTodayCourses(context)
         markWidgetNeedsSync()
     }
 
     override fun onDataSetChanged() {
+        TimetableWidgetDataSource.clearColorCache()
         courses = TimetableWidgetDataSource.loadTodayCourses(context)
         markWidgetNeedsSync()
     }
@@ -52,7 +54,7 @@ class TimetableWidgetFactory(
         views.setInt(
             R.id.courseColorBar,
             "setBackgroundColor",
-            TimetableWidgetDataSource.colorFor(course.courseName),
+            TimetableWidgetDataSource.colorFor(context, course.courseName),
         )
         views.setTextViewText(R.id.tvCourseTitle, course.courseName)
         views.setTextViewText(

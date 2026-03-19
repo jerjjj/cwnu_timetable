@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../config/color_palette.dart';
 import '../models/auth_session.dart';
 import '../models/course_record.dart';
 
@@ -17,6 +18,7 @@ class SessionStore {
   static const _kWelcomeCompleted = 'app.welcome_completed';
   static const _kIgnoredUpdateVersion = 'update.ignored.version';
   static const _kMigratedToSecure = 'auth.migrated_to_secure';
+  static const _kCourseColors = 'timetable.course_colors';
 
   static const _secureStorage = FlutterSecureStorage(
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
@@ -145,6 +147,23 @@ class SessionStore {
     final prefs = await _preferences;
     final encoded = jsonEncode(records.map((e) => e.toJson()).toList());
     await prefs.setString(_kCachedRecords, encoded);
+    await _saveCourseColors(records);
+  }
+
+  static Future<void> _saveCourseColors(List<CourseRecord> records) async {
+    final prefs = await _preferences;
+    final palette = ColorPalette();
+    final colorMap = <String, int>{};
+    final courseNames = records.map((r) => r.courseName.trim()).toSet();
+    for (final name in courseNames) {
+      if (name.isNotEmpty) {
+        colorMap[name] = palette.colorFor(name).toARGB32();
+      }
+    }
+    final json = jsonEncode(colorMap);
+    await prefs.setString(_kCourseColors, json);
+    // ignore: avoid_print
+    print('Saved ${colorMap.length} course colors');
   }
 
   static Future<void> markTimetableSyncedNow() async {
