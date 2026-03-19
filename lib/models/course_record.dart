@@ -8,7 +8,7 @@ class CourseRecord {
     required this.campusName,
     required this.placeName,
     required this.isOnline,
-  });
+  }) : _cachedPeriods = null;
 
   final String courseName;
   final List<int> week;
@@ -18,6 +18,8 @@ class CourseRecord {
   final String campusName;
   final String placeName;
   final bool isOnline;
+
+  List<int>? _cachedPeriods;
 
   factory CourseRecord.fromJson(Map<String, dynamic> json) {
     return CourseRecord(
@@ -62,13 +64,13 @@ class CourseRecord {
   }
 
   int get startPeriod {
-    final periodsList = _extractPeriods(periods);
-    return periodsList.first;
+    _cachedPeriods ??= _extractPeriods(periods);
+    return _cachedPeriods!.first;
   }
 
   int get endPeriod {
-    final periodsList = _extractPeriods(periods);
-    return periodsList.last;
+    _cachedPeriods ??= _extractPeriods(periods);
+    return _cachedPeriods!.last;
   }
 
   static List<int> _extractPeriods(String value) {

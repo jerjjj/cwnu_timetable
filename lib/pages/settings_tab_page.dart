@@ -306,7 +306,7 @@ class _SettingsTabPageState extends State<SettingsTabPage> {
             title: const Text('正在下载更新'),
             content: ValueListenableBuilder<double?>(
               valueListenable: progress,
-              builder: (_, value, __) {
+              builder: (_, value, _) {
                 final progressText = value == null
                     ? '正在准备下载...'
                     : '下载进度 ${(value * 100).clamp(0, 100).toStringAsFixed(0)}%';

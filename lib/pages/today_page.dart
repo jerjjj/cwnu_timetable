@@ -215,7 +215,7 @@ class TodayPageState extends State<TodayPage> {
         saturation.clamp(0.56, 0.72),
         lightness.clamp(0.62, 0.74),
       ).toColor();
-      final value = candidate.value;
+      final value = candidate.toARGB32();
       if (!_usedColorValues.contains(value)) {
         _usedColorValues.add(value);
         _usedHues.add(hue);
@@ -230,7 +230,7 @@ class TodayPageState extends State<TodayPage> {
       0.64,
       0.7,
     ).toColor();
-    _usedColorValues.add(fallback.value);
+    _usedColorValues.add(fallback.toARGB32());
     _usedHues.add((seed % 360).toDouble());
     _courseColorCache[key] = fallback;
     return fallback;
@@ -348,7 +348,7 @@ class TodayPageState extends State<TodayPage> {
                   : ListView.separated(
                       padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
                       itemCount: courses.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 10),
+                      separatorBuilder: (_, _) => const SizedBox(height: 10),
                       itemBuilder: (context, index) {
                         final record = courses[index];
                         final accent = _accentColor(record.courseName);

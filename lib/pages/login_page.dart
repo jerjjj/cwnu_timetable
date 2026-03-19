@@ -132,7 +132,7 @@ class _LoginPageState extends State<LoginPage> {
                 imageBytes,
                 height: 60,
                 fit: BoxFit.contain,
-                errorBuilder: (_, __, ___) => const Text(
+                errorBuilder: (context, error, stackTrace) => const Text(
                   '验证码图片加载失败',
                   style: TextStyle(color: Colors.red),
                 ),

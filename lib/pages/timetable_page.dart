@@ -178,7 +178,7 @@ class TimetablePageState extends State<TimetablePage> {
         saturation.clamp(0.56, 0.72),
         lightness.clamp(0.62, 0.74),
       ).toColor();
-      final value = candidate.value;
+      final value = candidate.toARGB32();
       if (!_usedColorValues.contains(value)) {
         _usedColorValues.add(value);
         _usedHues.add(hue);
@@ -193,7 +193,7 @@ class TimetablePageState extends State<TimetablePage> {
       0.64,
       0.7,
     ).toColor();
-    _usedColorValues.add(fallback.value);
+    _usedColorValues.add(fallback.toARGB32());
     _usedHues.add((seed % 360).toDouble());
     _courseColorCache[key] = fallback;
     return fallback;
@@ -562,6 +562,9 @@ class TimetablePageState extends State<TimetablePage> {
           padding: const EdgeInsets.only(left: 8),
           child: TextButton(
             onPressed: _showOnlineCourses,
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            ),
             child: const Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -569,9 +572,6 @@ class TimetablePageState extends State<TimetablePage> {
                 SizedBox(width: 4),
                 Text('线上课'),
               ],
-            ),
-            style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
             ),
           ),
         ),
