@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../config/class_period_time_ranges.dart';
+import '../config/color_palette.dart';
 import '../features/timetable/presentation/widgets/online_courses_sheet.dart';
 import '../features/timetable/presentation/widgets/timetable_grid.dart';
 import '../models/auth_session.dart';
@@ -29,9 +30,7 @@ class TimetablePageState extends State<TimetablePage> {
   late int _maxWeek;
   late int _selectedWeek;
   late DateTime _termStartDate;
-  final Map<String, Color> _courseColorCache = <String, Color>{};
-  final Set<int> _usedColorValues = <int>{};
-  final List<double> _usedHues = <double>[];
+  final _palette = ColorPalette();
   bool _isRefreshing = false;
   String? _errorText;
 
@@ -145,59 +144,7 @@ class TimetablePageState extends State<TimetablePage> {
     return maxPeriod;
   }
 
-  bool _isHueFarEnough(double hue) {
-    const minGap = 34.0;
-    for (final usedHue in _usedHues) {
-      final rawDiff = (hue - usedHue).abs();
-      final diff = rawDiff > 180 ? 360 - rawDiff : rawDiff;
-      if (diff < minGap) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  Color _colorFor(String key) {
-    final cached = _courseColorCache[key];
-    if (cached != null) {
-      return cached;
-    }
-
-    final seed = key.hashCode & 0x7fffffff;
-    for (var i = 0; i < 72; i++) {
-      final hue = ((seed % 360) + i * 137.50776405) % 360;
-      if (!_isHueFarEnough(hue)) {
-        continue;
-      }
-
-      final saturation = 0.58 + ((seed + i * 17) % 12) / 100.0;
-      final lightness = 0.64 + ((seed + i * 29) % 10) / 100.0;
-      final candidate = HSLColor.fromAHSL(
-        1,
-        hue,
-        saturation.clamp(0.56, 0.72),
-        lightness.clamp(0.62, 0.74),
-      ).toColor();
-      final value = candidate.toARGB32();
-      if (!_usedColorValues.contains(value)) {
-        _usedColorValues.add(value);
-        _usedHues.add(hue);
-        _courseColorCache[key] = candidate;
-        return candidate;
-      }
-    }
-
-    final fallback = HSLColor.fromAHSL(
-      1,
-      (seed % 360).toDouble(),
-      0.64,
-      0.7,
-    ).toColor();
-    _usedColorValues.add(fallback.toARGB32());
-    _usedHues.add((seed % 360).toDouble());
-    _courseColorCache[key] = fallback;
-    return fallback;
-  }
+  Color _colorFor(String key) => _palette.colorFor(key);
 
   String _formatWeekRanges(List<int> weeks) {
     if (weeks.isEmpty) {
