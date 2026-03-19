@@ -64,11 +64,13 @@ class CoursesNotifier extends StateNotifier<AsyncValue<List<CourseRecord>>> {
   }
 
   Future<void> refresh(List<CourseRecord> records) async {
+    SessionStore.invalidateRecordsCache();
     state = AsyncValue.data(records);
     await SessionStore.saveCachedRecords(records);
   }
 
   Future<void> reload() async {
+    SessionStore.invalidateRecordsCache();
     try {
       final records = await SessionStore.loadCachedRecords();
       state = AsyncValue.data(records);
