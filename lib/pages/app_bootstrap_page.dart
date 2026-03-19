@@ -297,10 +297,29 @@ class _AppBootstrapPageState extends ConsumerState<AppBootstrapPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (_nextPage != null) {
-      return _nextPage!;
-    }
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 400),
+      switchInCurve: Curves.easeOutCubic,
+      switchOutCurve: Curves.easeInCubic,
+      transitionBuilder: (child, animation) {
+        return FadeTransition(
+          opacity: animation,
+          child: ScaleTransition(
+            scale: Tween<double>(begin: 0.96, end: 1.0).animate(animation),
+            child: child,
+          ),
+        );
+      },
+      child: _nextPage ?? const _SplashScreen(key: ValueKey('splash')),
+    );
+  }
+}
 
+class _SplashScreen extends StatelessWidget {
+  const _SplashScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(

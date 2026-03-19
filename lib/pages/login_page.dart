@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../config/page_animations.dart';
 import '../models/auth_session.dart';
 import '../providers/app_providers.dart';
 import '../services/timetable_api.dart';
@@ -94,9 +95,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         return;
       }
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute<void>(
-          builder: (_) =>
-              HomeDockPage(session: session, initialRecords: records),
+        PageAnimations.fadeScale(
+          HomeDockPage(session: session, initialRecords: records),
         ),
       );
     } on Exception catch (e) {

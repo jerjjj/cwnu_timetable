@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../config/page_animations.dart';
 import '../models/auth_session.dart';
 import '../models/course_record.dart';
 import '../providers/app_providers.dart';
@@ -27,12 +28,20 @@ class HomeDockPage extends ConsumerStatefulWidget {
 class _HomeDockPageState extends ConsumerState<HomeDockPage> {
   final _todayKey = GlobalKey<TodayPageState>();
   final _timetableKey = GlobalKey<TimetablePageState>();
+  late final PageController _pageController;
   int _currentIndex = 0;
 
   @override
   void initState() {
     super.initState();
+    _pageController = PageController();
     _checkWidgetSyncRequest();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 
   Future<void> _checkWidgetSyncRequest() async {
@@ -50,16 +59,34 @@ class _HomeDockPageState extends ConsumerState<HomeDockPage> {
     await ref.read(authSessionProvider.notifier).logout();
     if (!mounted) return;
     Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute<void>(builder: (_) => const LoginPage()),
+      PageAnimations.fadeThrough(const LoginPage()),
       (route) => false,
+    );
+  }
+
+  void _onTabSelected(int index) {
+    if (index == _currentIndex) return;
+    if (index == 0) {
+      _todayKey.currentState?.reloadFromCache();
+    }
+    _pageController.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
+      body: PageView(
+        controller: _pageController,
+        physics: const NeverScrollableScrollPhysics(),
+        onPageChanged: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
         children: [
           TodayPage(key: _todayKey, initialRecords: widget.initialRecords),
           TimetablePage(
@@ -78,14 +105,7 @@ class _HomeDockPageState extends ConsumerState<HomeDockPage> {
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
-        onDestinationSelected: (index) {
-          if (index == 0) {
-            _todayKey.currentState?.reloadFromCache();
-          }
-          setState(() {
-            _currentIndex = index;
-          });
-        },
+        onDestinationSelected: _onTabSelected,
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.today_outlined),
