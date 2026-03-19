@@ -3,8 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../providers/app_providers.dart';
-import '../services/app_update_service.dart';
-import '../services/session_store.dart';
+import '../services/update_helper.dart';
 
 class SettingsTabPage extends ConsumerStatefulWidget {
   const SettingsTabPage({
@@ -26,7 +25,6 @@ class _SettingsTabPageState extends ConsumerState<SettingsTabPage> {
   bool _isSaving = false;
   bool _isLoggingOut = false;
   bool _isCheckingUpdate = false;
-  ValueNotifier<double?>? _downloadProgress;
 
   @override
   void initState() {
@@ -135,41 +133,16 @@ class _SettingsTabPageState extends ConsumerState<SettingsTabPage> {
     });
 
     try {
-      final latest = await AppUpdateService.fetchLatestVersion();
-      if (!mounted) {
-        return;
-      }
-      if (latest == null || latest.trim().isEmpty) {
-        await _showSimpleDialog(title: '检查失败', message: '无法获取最新版本号，请稍后重试。');
-        return;
-      }
-
-      final current = await AppUpdateService.currentAppVersion();
-      if (!mounted) {
-        return;
-      }
-
-      if (!AppUpdateService.isNewerVersion(latest: latest, current: current)) {
-        final messenger = ScaffoldMessenger.of(context);
-        messenger.hideCurrentSnackBar();
-        messenger.showSnackBar(
-          const SnackBar(
-            content: Text('当前已是最新版本'),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-        return;
-      }
-
-      await _showManualUpdateDialog(
-        latestVersion: latest,
-        currentVersion: current,
-      );
+      await UpdateHelper.checkAndPromptUpdate(context);
     } catch (e) {
       if (!mounted) {
         return;
       }
-      await _showSimpleDialog(title: '检查失败', message: '检查更新失败：$e');
+      await UpdateHelper.showSimpleDialog(
+        context,
+        title: '检查失败',
+        message: '检查更新失败：$e',
+      );
     } finally {
       if (mounted) {
         setState(() {
@@ -177,180 +150,6 @@ class _SettingsTabPageState extends ConsumerState<SettingsTabPage> {
         });
       }
     }
-  }
-
-  Future<void> _showManualUpdateDialog({
-    required String latestVersion,
-    required String currentVersion,
-  }) async {
-    await showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (dialogContext) {
-        return AlertDialog(
-          title: const Text('发现新版本'),
-          content: Text(
-            '当前版本: $currentVersion\n最新版本: $latestVersion\n\n是否立即更新？',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(dialogContext).pop();
-              },
-              child: const Text('稍后提醒'),
-            ),
-            TextButton(
-              onPressed: () async {
-                await SessionStore.markUpdateVersionIgnored(latestVersion);
-                if (dialogContext.mounted) {
-                  Navigator.of(dialogContext).pop();
-                }
-              },
-              child: const Text('不再提醒此版本'),
-            ),
-            FilledButton(
-              onPressed: () async {
-                if (dialogContext.mounted) {
-                  Navigator.of(dialogContext).pop();
-                }
-                await _downloadAndInstall(latestVersion);
-              },
-              child: const Text('立即更新'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Future<void> _downloadAndInstall(String version) async {
-    if (!mounted) {
-      return;
-    }
-    final messenger = ScaffoldMessenger.of(context);
-    messenger.hideCurrentSnackBar();
-    _downloadProgress?.dispose();
-    _downloadProgress = ValueNotifier<double?>(null);
-    _showDownloadProgressDialog(_downloadProgress!);
-
-    try {
-      final apkFile = await AppUpdateService.downloadApk(
-        version: version,
-        onProgress: (received, total) {
-          if (!mounted || _downloadProgress == null) {
-            return;
-          }
-          if (total > 0) {
-            _downloadProgress!.value = received / total;
-          } else {
-            _downloadProgress!.value = null;
-          }
-        },
-      );
-
-      if (!mounted) {
-        return;
-      }
-      if (Navigator.of(context, rootNavigator: true).canPop()) {
-        Navigator.of(context, rootNavigator: true).pop();
-      }
-
-      messenger.showSnackBar(
-        const SnackBar(
-          content: Text('下载完成，正在启动安装器...'),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-
-      try {
-        await AppUpdateService.installApk(apkFile);
-      } catch (e) {
-        if (!mounted) {
-          return;
-        }
-        await _showSimpleDialog(
-          title: '未能启动安装器',
-          message: '安装包已下载，但未能自动拉起安装界面。\n\n请确认系统已允许本应用安装未知来源应用，然后重试。\n\n详情: $e',
-        );
-      }
-    } catch (e) {
-      if (!mounted) {
-        return;
-      }
-      if (Navigator.of(context, rootNavigator: true).canPop()) {
-        Navigator.of(context, rootNavigator: true).pop();
-      }
-      await _showSimpleDialog(
-        title: '下载失败',
-        message: '更新安装包下载失败，请稍后重试。\n\n原因: $e',
-      );
-    } finally {
-      _downloadProgress?.dispose();
-      _downloadProgress = null;
-    }
-  }
-
-  Future<void> _showDownloadProgressDialog(
-    ValueNotifier<double?> progress,
-  ) async {
-    if (!mounted) {
-      return;
-    }
-    await showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (dialogContext) {
-        return PopScope(
-          canPop: false,
-          child: AlertDialog(
-            title: const Text('正在下载更新'),
-            content: ValueListenableBuilder<double?>(
-              valueListenable: progress,
-              builder: (_, value, _) {
-                final progressText = value == null
-                    ? '正在准备下载...'
-                    : '下载进度 ${(value * 100).clamp(0, 100).toStringAsFixed(0)}%';
-                return SizedBox(
-                  width: 260,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(progressText),
-                      const SizedBox(height: 12),
-                      LinearProgressIndicator(value: value),
-                    ],
-                  ),
-                );
-              },
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Future<void> _showSimpleDialog({
-    required String title,
-    required String message,
-  }) async {
-    await showDialog<void>(
-      context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          title: Text(title),
-          content: Text(message),
-          actions: [
-            FilledButton(
-              onPressed: () {
-                Navigator.of(dialogContext).pop();
-              },
-              child: const Text('我知道了'),
-            ),
-          ],
-        );
-      },
-    );
   }
 
   @override

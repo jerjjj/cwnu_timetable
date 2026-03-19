@@ -9,6 +9,8 @@ import '../models/auth_session.dart';
 import '../models/course_record.dart';
 import '../services/session_store.dart';
 import '../services/timetable_api.dart';
+import '../widgets/course_detail_dialog.dart';
+import '../widgets/week_picker_dialog.dart';
 
 class TimetablePage extends StatefulWidget {
   const TimetablePage({
@@ -143,88 +145,30 @@ class TimetablePageState extends State<TimetablePage> {
         ? CourseUtils.mergeRecords(candidates)
         : record;
 
-    final teacherText = currentWeekRecord.teacher.trim().isEmpty
-        ? '暂无教师'
-        : currentWeekRecord.teacher.trim();
-    final placeText = currentWeekRecord.placeName.trim().isEmpty
-        ? '地点待定'
-        : currentWeekRecord.placeName.trim();
-    final timeText = _formatCourseTime(currentWeekRecord);
-    final weeksText = CourseUtils.formatWeekRanges(currentWeekRecord.week);
-    const textColor = Colors.white;
+    CourseDetailDialog.show(
+      context,
+      record: currentWeekRecord,
+      color: color,
+      teacherText: currentWeekRecord.teacher.trim().isEmpty
+          ? '暂无教师'
+          : currentWeekRecord.teacher.trim(),
+      placeText: currentWeekRecord.placeName.trim().isEmpty
+          ? '地点待定'
+          : currentWeekRecord.placeName.trim(),
+      timeText: _formatCourseTime(currentWeekRecord),
+      weeksText: CourseUtils.formatWeekRanges(currentWeekRecord.week),
+    );
+  }
 
-    showDialog<void>(
-      context: context,
-      barrierColor: Colors.black54,
-      builder: (context) {
-        return Dialog(
-          backgroundColor: Colors.transparent,
-          insetPadding: const EdgeInsets.symmetric(
-            horizontal: 28,
-            vertical: 24,
-          ),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(22),
-              color: color.withValues(alpha: 0.96),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  currentWeekRecord.courseName,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: textColor,
-                    fontSize: 21,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  teacherText,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: textColor,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  placeText,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: textColor,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  timeText,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: textColor,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  weeksText,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: textColor,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
+  void _showWeekPickerDialog() {
+    WeekPickerDialog.show(
+      context,
+      maxWeek: _maxWeek,
+      selectedWeek: _selectedWeek,
+      onWeekSelected: (week) {
+        setState(() {
+          _selectedWeek = week;
+        });
       },
     );
   }
@@ -253,91 +197,6 @@ class TimetablePageState extends State<TimetablePage> {
         formatWeekRanges: CourseUtils.formatWeekRanges,
         colorFor: _colorFor,
       ),
-    );
-  }
-
-  void _showWeekPickerDialog() {
-    final end = _maxWeek < 20 ? _maxWeek : 20;
-    final weeks = List.generate(end, (i) => i + 1);
-
-    showDialog<void>(
-      context: context,
-      barrierColor: Colors.black54,
-      builder: (context) {
-        return Dialog(
-          backgroundColor: const Color(0xFFF4F6FA),
-          insetPadding: const EdgeInsets.symmetric(
-            horizontal: 24,
-            vertical: 32,
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
-          ),
-          child: SizedBox(
-            width: 360,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 18, 16, 16),
-              child: GridView.builder(
-                shrinkWrap: true,
-                itemCount: weeks.length,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 4,
-                  childAspectRatio: 0.82,
-                  mainAxisSpacing: 12,
-                  crossAxisSpacing: 10,
-                ),
-                itemBuilder: (context, index) {
-                  final week = weeks[index];
-                  final isSelected = week == _selectedWeek;
-
-                  return Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(14),
-                      onTap: () {
-                        setState(() {
-                          _selectedWeek = week;
-                        });
-                        Navigator.of(context).pop();
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? const Color(0xFFE2F0FF)
-                              : Colors.transparent,
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(
-                            color: isSelected
-                                ? const Color(0xFF3B78AC)
-                                : Colors.transparent,
-                            width: 2,
-                          ),
-                        ),
-                        padding: const EdgeInsets.fromLTRB(6, 6, 6, 4),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              '第$week周',
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: isSelected
-                                    ? FontWeight.w700
-                                    : FontWeight.w600,
-                                color: const Color(0xFF1C2A39),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
-        );
-      },
     );
   }
 
