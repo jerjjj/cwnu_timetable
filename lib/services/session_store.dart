@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/auth_session.dart';
@@ -16,6 +17,10 @@ class SessionStore {
   static const _kWelcomeCompleted = 'app.welcome_completed';
   static const _kIgnoredUpdateVersion = 'update.ignored_version';
 
+  static const _secureStorage = FlutterSecureStorage(
+    aOptions: AndroidOptions(encryptedSharedPreferences: true),
+  );
+
   static Future<bool> shouldShowWelcome() async {
     final prefs = await SharedPreferences.getInstance();
     return !(prefs.getBool(_kWelcomeCompleted) ?? false);
@@ -29,15 +34,30 @@ class SessionStore {
   static Future<void> save(AuthSession session) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_kUsername, session.username);
-    await prefs.setString(_kPassword, session.password);
-    await prefs.setString(_kJwxtPassword, session.jwxtPassword);
+    try {
+      await _secureStorage.write(key: _kPassword, value: session.password);
+      await _secureStorage.write(
+        key: _kJwxtPassword,
+        value: session.jwxtPassword,
+      );
+    } catch (_) {
+      await prefs.setString(_kPassword, session.password);
+      await prefs.setString(_kJwxtPassword, session.jwxtPassword);
+    }
   }
 
   static Future<AuthSession?> load() async {
     final prefs = await SharedPreferences.getInstance();
     final username = prefs.getString(_kUsername)?.trim() ?? '';
-    final password = prefs.getString(_kPassword) ?? '';
-    final jwxtPassword = prefs.getString(_kJwxtPassword) ?? '';
+    String password = '';
+    String jwxtPassword = '';
+    try {
+      password = await _secureStorage.read(key: _kPassword) ?? '';
+      jwxtPassword = await _secureStorage.read(key: _kJwxtPassword) ?? '';
+    } catch (_) {
+      password = prefs.getString(_kPassword) ?? '';
+      jwxtPassword = prefs.getString(_kJwxtPassword) ?? '';
+    }
     if (username.isEmpty || password.isEmpty || jwxtPassword.isEmpty) {
       return null;
     }
@@ -51,8 +71,13 @@ class SessionStore {
   static Future<void> clear() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_kUsername);
-    await prefs.remove(_kPassword);
-    await prefs.remove(_kJwxtPassword);
+    try {
+      await _secureStorage.delete(key: _kPassword);
+      await _secureStorage.delete(key: _kJwxtPassword);
+    } catch (_) {
+      await prefs.remove(_kPassword);
+      await prefs.remove(_kJwxtPassword);
+    }
     await prefs.remove(_kCachedRecords);
     await prefs.remove(_kLastSyncAt);
     await prefs.remove(_kIgnoredUpdateVersion);
