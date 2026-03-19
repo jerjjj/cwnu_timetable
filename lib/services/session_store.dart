@@ -52,8 +52,16 @@ class SessionStore {
     String password = '';
     String jwxtPassword = '';
     try {
-      password = await _secureStorage.read(key: _kPassword) ?? '';
-      jwxtPassword = await _secureStorage.read(key: _kJwxtPassword) ?? '';
+      password =
+          await _secureStorage
+              .read(key: _kPassword)
+              .timeout(const Duration(seconds: 3), onTimeout: () => '') ??
+          '';
+      jwxtPassword =
+          await _secureStorage
+              .read(key: _kJwxtPassword)
+              .timeout(const Duration(seconds: 3), onTimeout: () => '') ??
+          '';
     } catch (_) {
       password = prefs.getString(_kPassword) ?? '';
       jwxtPassword = prefs.getString(_kJwxtPassword) ?? '';

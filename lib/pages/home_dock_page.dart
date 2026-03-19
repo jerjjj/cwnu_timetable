@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/auth_session.dart';
 import '../models/course_record.dart';
+import '../providers/app_providers.dart';
 import '../services/session_store.dart';
 import 'login_page.dart';
 import 'settings_tab_page.dart';
 import 'timetable_page.dart';
 import 'today_page.dart';
 
-class HomeDockPage extends StatefulWidget {
+class HomeDockPage extends ConsumerStatefulWidget {
   const HomeDockPage({
     super.key,
     required this.session,
@@ -19,10 +21,10 @@ class HomeDockPage extends StatefulWidget {
   final List<CourseRecord> initialRecords;
 
   @override
-  State<HomeDockPage> createState() => _HomeDockPageState();
+  ConsumerState<HomeDockPage> createState() => _HomeDockPageState();
 }
 
-class _HomeDockPageState extends State<HomeDockPage> {
+class _HomeDockPageState extends ConsumerState<HomeDockPage> {
   final _todayKey = GlobalKey<TodayPageState>();
   final _timetableKey = GlobalKey<TimetablePageState>();
   int _currentIndex = 0;
@@ -37,7 +39,6 @@ class _HomeDockPageState extends State<HomeDockPage> {
     final widgetSyncRequested = await SessionStore.isWidgetSyncRequested();
     if (widgetSyncRequested && mounted) {
       await SessionStore.clearWidgetSyncRequest();
-      // 延迟一下，确保页面已建立
       await Future.delayed(const Duration(milliseconds: 500));
       if (mounted) {
         _timetableKey.currentState?.checkAndRefreshForWidget();
@@ -46,10 +47,8 @@ class _HomeDockPageState extends State<HomeDockPage> {
   }
 
   Future<void> _logout() async {
-    await SessionStore.clear();
-    if (!mounted) {
-      return;
-    }
+    await ref.read(authSessionProvider.notifier).logout();
+    if (!mounted) return;
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute<void>(builder: (_) => const LoginPage()),
       (route) => false,

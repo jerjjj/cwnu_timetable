@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../models/auth_session.dart';
-import '../services/session_store.dart';
+import '../providers/app_providers.dart';
 import '../services/timetable_api.dart';
 import 'home_dock_page.dart';
 import 'dart:typed_data';
 
-class LoginPage extends StatefulWidget {
+class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  ConsumerState<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginPageState extends ConsumerState<LoginPage> {
   static final Uri _jwxtHelpUri = Uri.parse(
     'https://www.kdocs.cn/l/clr9aN3uXwoF',
   );
@@ -87,9 +88,8 @@ class _LoginPageState extends State<LoginPage> {
         jwxtPassword: session.jwxtPassword,
         captcha: captchaText,
       );
-      await SessionStore.save(session);
-      await SessionStore.saveCachedRecords(records);
-      await SessionStore.markTimetableSyncedNow();
+      await ref.read(authSessionProvider.notifier).login(session);
+      await ref.read(coursesProvider.notifier).refresh(records);
       if (!mounted) {
         return;
       }

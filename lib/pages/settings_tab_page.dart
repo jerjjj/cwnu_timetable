@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../providers/app_providers.dart';
 import '../services/app_update_service.dart';
 import '../services/session_store.dart';
 
-class SettingsTabPage extends StatefulWidget {
+class SettingsTabPage extends ConsumerStatefulWidget {
   const SettingsTabPage({
     super.key,
     required this.onTermStartDateChanged,
@@ -15,10 +17,10 @@ class SettingsTabPage extends StatefulWidget {
   final Future<void> Function() onLogout;
 
   @override
-  State<SettingsTabPage> createState() => _SettingsTabPageState();
+  ConsumerState<SettingsTabPage> createState() => _SettingsTabPageState();
 }
 
-class _SettingsTabPageState extends State<SettingsTabPage> {
+class _SettingsTabPageState extends ConsumerState<SettingsTabPage> {
   static const _shareUrl = 'https://gitee.com/jerjjj_admin/xifankebiao/';
   DateTime? _termStartDate;
   bool _isSaving = false;
@@ -33,10 +35,7 @@ class _SettingsTabPageState extends State<SettingsTabPage> {
   }
 
   Future<void> _load() async {
-    final date = await SessionStore.loadTermStartDate();
-    if (!mounted) {
-      return;
-    }
+    final date = ref.read(termStartDateProvider);
     setState(() {
       _termStartDate = date;
     });
@@ -50,7 +49,8 @@ class _SettingsTabPageState extends State<SettingsTabPage> {
   }
 
   Future<void> _pickDate() async {
-    final current = _termStartDate ?? SessionStore.defaultTermStartDate();
+    final current =
+        (_termStartDate ?? ref.read(termStartDateProvider)) as DateTime;
     final picked = await showDatePicker(
       context: context,
       initialDate: current,
@@ -76,7 +76,7 @@ class _SettingsTabPageState extends State<SettingsTabPage> {
       _isSaving = true;
     });
 
-    await SessionStore.saveTermStartDate(date);
+    await ref.read(termStartDateProvider.notifier).update(date);
     widget.onTermStartDateChanged();
     if (!mounted) {
       return;

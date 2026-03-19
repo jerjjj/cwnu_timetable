@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../services/app_update_service.dart';
 import '../services/session_store.dart';
@@ -7,14 +8,14 @@ import 'login_page.dart';
 import 'welcome_page.dart';
 import 'warning_page.dart';
 
-class AppBootstrapPage extends StatefulWidget {
+class AppBootstrapPage extends ConsumerStatefulWidget {
   const AppBootstrapPage({super.key});
 
   @override
-  State<AppBootstrapPage> createState() => _AppBootstrapPageState();
+  ConsumerState<AppBootstrapPage> createState() => _AppBootstrapPageState();
 }
 
-class _AppBootstrapPageState extends State<AppBootstrapPage> {
+class _AppBootstrapPageState extends ConsumerState<AppBootstrapPage> {
   Widget? _nextPage;
   bool _updateDialogShown = false;
   ValueNotifier<double?>? _downloadProgress;
