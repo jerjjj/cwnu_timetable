@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../config/class_period_time_ranges.dart';
 import '../config/color_palette.dart';
+import '../config/course_utils.dart';
 import '../features/timetable/presentation/widgets/online_courses_sheet.dart';
 import '../features/timetable/presentation/widgets/timetable_grid.dart';
 import '../models/auth_session.dart';
@@ -38,9 +39,12 @@ class TimetablePageState extends State<TimetablePage> {
   void initState() {
     super.initState();
     _records = widget.initialRecords;
-    _maxWeek = _findMaxWeek(_records);
+    _maxWeek = CourseUtils.findMaxWeek(_records);
     _termStartDate = SessionStore.defaultTermStartDate();
-    _selectedWeek = _computeCurrentWeek(maxWeek: _maxWeek);
+    _selectedWeek = CourseUtils.computeCurrentWeek(
+      termStartDate: _termStartDate,
+      maxWeek: _maxWeek,
+    );
     _loadTermStartDate();
     _maybeAutoRefreshTimetable();
   }
@@ -60,7 +64,10 @@ class TimetablePageState extends State<TimetablePage> {
     }
     setState(() {
       _termStartDate = date;
-      _selectedWeek = _computeCurrentWeek(maxWeek: _maxWeek);
+      _selectedWeek = CourseUtils.computeCurrentWeek(
+        termStartDate: _termStartDate,
+        maxWeek: _maxWeek,
+      );
     });
   }
 
@@ -74,38 +81,6 @@ class TimetablePageState extends State<TimetablePage> {
     }
   }
 
-  int _computeCurrentWeek({required int maxWeek}) {
-    final today = DateTime.now();
-    final todayDate = DateTime(today.year, today.month, today.day);
-    final startDate = DateTime(
-      _termStartDate.year,
-      _termStartDate.month,
-      _termStartDate.day,
-    );
-
-    final diffDays = todayDate.difference(startDate).inDays;
-    var week = diffDays < 0 ? 1 : (diffDays ~/ 7) + 1;
-    if (week < 1) {
-      week = 1;
-    }
-    if (week > maxWeek) {
-      week = maxWeek;
-    }
-    return week;
-  }
-
-  int _findMaxWeek(List<CourseRecord> records) {
-    var maxWeek = 1;
-    for (final r in records) {
-      for (final w in r.week) {
-        if (w > maxWeek) {
-          maxWeek = w;
-        }
-      }
-    }
-    return maxWeek;
-  }
-
   List<CourseRecord> get _visibleRecords {
     return _records.where((r) => !r.isOnline).toList();
   }
@@ -116,13 +91,9 @@ class TimetablePageState extends State<TimetablePage> {
       final aWeek = a.week.isEmpty ? 0 : a.week.first;
       final bWeek = b.week.isEmpty ? 0 : b.week.first;
       final weekCompare = aWeek.compareTo(bWeek);
-      if (weekCompare != 0) {
-        return weekCompare;
-      }
+      if (weekCompare != 0) return weekCompare;
       final dayCompare = a.dayOfWeek.compareTo(b.dayOfWeek);
-      if (dayCompare != 0) {
-        return dayCompare;
-      }
+      if (dayCompare != 0) return dayCompare;
       return a.startPeriod.compareTo(b.startPeriod);
     });
     return list;
@@ -146,86 +117,6 @@ class TimetablePageState extends State<TimetablePage> {
 
   Color _colorFor(String key) => _palette.colorFor(key);
 
-  String _formatWeekRanges(List<int> weeks) {
-    if (weeks.isEmpty) {
-      return '';
-    }
-    final sorted = [...weeks]..sort();
-    final ranges = <String>[];
-    var start = sorted.first;
-    var end = sorted.first;
-
-    for (var i = 1; i < sorted.length; i++) {
-      final w = sorted[i];
-      if (w == end + 1) {
-        end = w;
-      } else {
-        ranges.add(start == end ? '$start周' : '$start-$end周');
-        start = w;
-        end = w;
-      }
-    }
-    ranges.add(start == end ? '$start周' : '$start-$end周');
-    return ranges.join(',');
-  }
-
-  List<String> _teacherTokens(String teacherText) {
-    return teacherText
-        .split(RegExp(r'[、,，;；/\s]+'))
-        .map((e) => e.trim())
-        .where((e) => e.isNotEmpty)
-        .toList();
-  }
-
-  String _mergeTeacherText(Iterable<String> texts) {
-    final ordered = <String>[];
-    final seen = <String>{};
-    for (final text in texts) {
-      for (final token in _teacherTokens(text)) {
-        if (seen.add(token)) {
-          ordered.add(token);
-        }
-      }
-    }
-    return ordered.join('、');
-  }
-
-  CourseRecord _mergeRecords(List<CourseRecord> records) {
-    final base = records.first;
-    final mergedWeeks = records.expand((record) => record.week).toSet().toList()
-      ..sort();
-    final mergedTeacher = _mergeTeacherText(
-      records.map((record) => record.teacher),
-    );
-    final mergedCampus = records
-        .map((record) => record.campusName.trim())
-        .firstWhere((text) => text.isNotEmpty, orElse: () => base.campusName);
-    final mergedPlace = records
-        .map((record) => record.placeName.trim())
-        .firstWhere((text) => text.isNotEmpty, orElse: () => base.placeName);
-    return CourseRecord(
-      courseName: base.courseName,
-      week: mergedWeeks,
-      dayOfWeek: base.dayOfWeek,
-      periods: base.periods,
-      teacher: mergedTeacher,
-      campusName: mergedCampus,
-      placeName: mergedPlace,
-      isOnline: base.isOnline,
-    );
-  }
-
-  CourseRecord _resolveCurrentWeekRecord(CourseRecord tapped) {
-    final candidates = _visibleRecords.where((record) {
-      return record.courseName == tapped.courseName &&
-          record.dayOfWeek == tapped.dayOfWeek &&
-          record.startPeriod == tapped.startPeriod &&
-          record.endPeriod == tapped.endPeriod &&
-          record.week.contains(_selectedWeek);
-    }).toList();
-    return candidates.isNotEmpty ? _mergeRecords(candidates) : tapped;
-  }
-
   String _formatCourseTime(CourseRecord record) {
     final start = classPeriodTimeRanges[record.startPeriod];
     final end = classPeriodTimeRanges[record.endPeriod];
@@ -238,7 +129,20 @@ class TimetablePageState extends State<TimetablePage> {
   }
 
   void _showCourseDialog(CourseRecord record, Color color) {
-    final currentWeekRecord = _resolveCurrentWeekRecord(record);
+    final candidates = _visibleRecords
+        .where(
+          (r) =>
+              r.courseName == record.courseName &&
+              r.dayOfWeek == record.dayOfWeek &&
+              r.startPeriod == record.startPeriod &&
+              r.endPeriod == record.endPeriod &&
+              r.week.contains(_selectedWeek),
+        )
+        .toList();
+    final currentWeekRecord = candidates.isNotEmpty
+        ? CourseUtils.mergeRecords(candidates)
+        : record;
+
     final teacherText = currentWeekRecord.teacher.trim().isEmpty
         ? '暂无教师'
         : currentWeekRecord.teacher.trim();
@@ -246,7 +150,7 @@ class TimetablePageState extends State<TimetablePage> {
         ? '地点待定'
         : currentWeekRecord.placeName.trim();
     final timeText = _formatCourseTime(currentWeekRecord);
-    final weeksText = _formatWeekRanges(currentWeekRecord.week);
+    final weeksText = CourseUtils.formatWeekRanges(currentWeekRecord.week);
     const textColor = Colors.white;
 
     showDialog<void>(
@@ -271,7 +175,7 @@ class TimetablePageState extends State<TimetablePage> {
                 Text(
                   currentWeekRecord.courseName,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: textColor,
                     fontSize: 21,
                     fontWeight: FontWeight.w700,
@@ -281,7 +185,7 @@ class TimetablePageState extends State<TimetablePage> {
                 Text(
                   teacherText,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: textColor,
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
@@ -291,7 +195,7 @@ class TimetablePageState extends State<TimetablePage> {
                 Text(
                   placeText,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: textColor,
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
@@ -301,7 +205,7 @@ class TimetablePageState extends State<TimetablePage> {
                 Text(
                   timeText,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: textColor,
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
@@ -311,7 +215,7 @@ class TimetablePageState extends State<TimetablePage> {
                 Text(
                   weeksText,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: textColor,
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
@@ -346,7 +250,7 @@ class TimetablePageState extends State<TimetablePage> {
       builder: (context) => OnlineCoursesSheet(
         records: onlineRecords,
         days: _days,
-        formatWeekRanges: _formatWeekRanges,
+        formatWeekRanges: CourseUtils.formatWeekRanges,
         colorFor: _colorFor,
       ),
     );
@@ -476,9 +380,12 @@ class TimetablePageState extends State<TimetablePage> {
       }
       setState(() {
         _records = records;
-        final newMaxWeek = _findMaxWeek(records);
+        final newMaxWeek = CourseUtils.findMaxWeek(records);
         _maxWeek = newMaxWeek;
-        _selectedWeek = _computeCurrentWeek(maxWeek: newMaxWeek);
+        _selectedWeek = CourseUtils.computeCurrentWeek(
+          termStartDate: _termStartDate,
+          maxWeek: newMaxWeek,
+        );
       });
       await SessionStore.saveCachedRecords(records);
       await SessionStore.markTimetableSyncedNow();

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../config/class_period_time_ranges.dart';
 import '../config/color_palette.dart';
+import '../config/course_utils.dart';
 import '../models/course_record.dart';
 import '../services/session_store.dart';
 
@@ -75,38 +76,10 @@ class TodayPageState extends State<TodayPage> {
     });
   }
 
-  int _findMaxWeek() {
-    var maxWeek = 1;
-    for (final r in _records) {
-      for (final w in r.week) {
-        if (w > maxWeek) {
-          maxWeek = w;
-        }
-      }
-    }
-    return maxWeek;
-  }
-
-  int _computeCurrentWeek() {
-    final maxWeek = _findMaxWeek();
-    final now = DateTime.now();
-    final todayDate = DateTime(now.year, now.month, now.day);
-    final startDate = DateTime(
-      _termStartDate.year,
-      _termStartDate.month,
-      _termStartDate.day,
-    );
-
-    final diffDays = todayDate.difference(startDate).inDays;
-    var week = diffDays < 0 ? 1 : (diffDays ~/ 7) + 1;
-    if (week < 1) {
-      week = 1;
-    }
-    if (week > maxWeek) {
-      week = maxWeek;
-    }
-    return week;
-  }
+  int _currentWeek() => CourseUtils.computeCurrentWeek(
+    termStartDate: _termStartDate,
+    maxWeek: CourseUtils.findMaxWeek(_records),
+  );
 
   String _formatCourseTime(CourseRecord record) {
     final start = classPeriodTimeRanges[record.startPeriod];
@@ -183,56 +156,10 @@ class TodayPageState extends State<TodayPage> {
 
   Color _accentColor(String key) => _palette.colorFor(key);
 
-  List<String> _teacherTokens(String teacherText) {
-    return teacherText
-        .split(RegExp(r'[、,，;；/\s]+'))
-        .map((e) => e.trim())
-        .where((e) => e.isNotEmpty)
-        .toList();
-  }
-
-  String _mergeTeacherText(Iterable<String> texts) {
-    final ordered = <String>[];
-    final seen = <String>{};
-    for (final text in texts) {
-      for (final token in _teacherTokens(text)) {
-        if (seen.add(token)) {
-          ordered.add(token);
-        }
-      }
-    }
-    return ordered.join('、');
-  }
-
-  CourseRecord _mergeRecords(List<CourseRecord> records) {
-    final base = records.first;
-    final mergedWeeks = records.expand((record) => record.week).toSet().toList()
-      ..sort();
-    final mergedTeacher = _mergeTeacherText(
-      records.map((record) => record.teacher),
-    );
-    final mergedCampus = records
-        .map((record) => record.campusName.trim())
-        .firstWhere((text) => text.isNotEmpty, orElse: () => base.campusName);
-    final mergedPlace = records
-        .map((record) => record.placeName.trim())
-        .firstWhere((text) => text.isNotEmpty, orElse: () => base.placeName);
-    return CourseRecord(
-      courseName: base.courseName,
-      week: mergedWeeks,
-      dayOfWeek: base.dayOfWeek,
-      periods: base.periods,
-      teacher: mergedTeacher,
-      campusName: mergedCampus,
-      placeName: mergedPlace,
-      isOnline: base.isOnline,
-    );
-  }
-
   List<CourseRecord> _todayCourses() {
     final now = DateTime.now();
     final todayWeekday = now.weekday;
-    final currentWeek = _computeCurrentWeek();
+    final currentWeek = _currentWeek();
 
     final courses = _records
         .where((r) => !r.isOnline)
@@ -247,7 +174,7 @@ class TodayPageState extends State<TodayPage> {
       grouped.putIfAbsent(key, () => <CourseRecord>[]).add(record);
     }
 
-    final merged = grouped.values.map(_mergeRecords).toList();
+    final merged = grouped.values.map(CourseUtils.mergeRecords).toList();
     merged.sort((a, b) => a.startPeriod.compareTo(b.startPeriod));
     return merged;
   }
@@ -255,7 +182,7 @@ class TodayPageState extends State<TodayPage> {
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now();
-    final currentWeek = _computeCurrentWeek();
+    final currentWeek = _currentWeek();
     final weekdayText = _weekdayLabels[now.weekday - 1];
     final courses = _todayCourses();
 
