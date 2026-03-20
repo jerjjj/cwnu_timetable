@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../providers/app_providers.dart';
 import '../services/update_helper.dart';
+import 'licenses_page.dart';
 
 class SettingsTabPage extends ConsumerStatefulWidget {
   const SettingsTabPage({
@@ -267,6 +268,21 @@ class _SettingsTabPageState extends ConsumerState<SettingsTabPage> {
                     onPressed: _copyShareLink,
                     icon: const Icon(Icons.share_outlined),
                     label: const Text('分享该应用'),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => const LicensesPage(),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.description_outlined),
+                    label: const Text('开源依赖'),
                   ),
                 ),
                 const SizedBox(height: 12),

@@ -1,38 +1,37 @@
-# CWNU Timetable Demo
+# CWNU Timetable 
 
-Flutter 课表项目（端侧 Rust FFI 抓取课表，无需独立后端服务）。
+​                                   专为西华师范大学学子设计的课表软件
 
-编译与打包说明见 [BUILD.md](BUILD.md)。
+## 下载链接
 
-## 项目结构
+安卓用户请前往gitee下载最新稳定版：[xifankebiao: 稀饭课表软件更新服务](https://gitee.com/jerjjj_admin/xifankebiao)
 
-- `lib/main.dart`：Flutter 启动入口
-- `lib/pages/`：页面层（启动页、登录页、课表页）
-- `lib/services/`：接口与本地存储
-- `lib/models/`：数据模型
+想要提前尝鲜新功能可以前往***github action***下载测试版
 
-## 运行 App（推荐）
+> [!WARNING]
+>
+> 注意，测试版不建议日常使用
 
-应用在手机端本地完成统一认证登录与课表抓取，无需 Python 服务。
+对于苹果用户，可以在***github action***下载ipa安装包，但是需要进行自签
 
-```bash
-flutter pub get
-flutter run -d emulator-5556
-```
+## 软件功能
 
-## 使用说明
+- [x] 课表查看
+- [x] 课表自动更新
+- [x] 软件内更新
+- [x] 桌面小组件
+- [x] 深色模式
+- [ ] 成绩查看
+- [ ] 考试信息查询
+- [ ] 空闲教室查询
+- [ ] 课表导出日历
+- [ ] 课程开始提醒
+- [ ] 设定自定义事项
 
-- 首次登录成功后会保存账号、密码。
-- 之后每次进入应用会自动登录并自动刷新课表。
-- 课表页右上角支持手动刷新和退出登录。
-- 课表会本地缓存，启动时优先显示旧数据，再后台刷新。
+## 意见反馈
 
-## 打包 APK
+可以在github发起issue，也可以发邮件：wuzhijun@jerjjj.cn
 
-```bash
-flutter build apk --release
-```
+## 开发指南
 
-产物位置：
-
-- `build/app/outputs/flutter-apk/app-release.apk`
+本人水平有限，欢迎大家加入开发，详细的编译指南见：[BUILD.md](BUILD.md)
