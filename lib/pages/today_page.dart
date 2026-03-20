@@ -132,7 +132,17 @@ class TodayPageState extends State<TodayPage> {
     return '上课中';
   }
 
-  Color _statusBackgroundColor(String status) {
+  Color _statusBackgroundColor(String status, bool isDark) {
+    if (isDark) {
+      switch (status) {
+        case '上课中':
+          return const Color(0xFF1B3D2F);
+        case '已结束':
+          return const Color(0xFF2D3238);
+        default:
+          return const Color(0xFF3D3425);
+      }
+    }
     switch (status) {
       case '上课中':
         return const Color(0xFFDBF6E8);
@@ -143,7 +153,17 @@ class TodayPageState extends State<TodayPage> {
     }
   }
 
-  Color _statusTextColor(String status) {
+  Color _statusTextColor(String status, bool isDark) {
+    if (isDark) {
+      switch (status) {
+        case '上课中':
+          return const Color(0xFF7DDCA0);
+        case '已结束':
+          return const Color(0xFF8B9199);
+        default:
+          return const Color(0xFFD4A857);
+      }
+    }
     switch (status) {
       case '上课中':
         return const Color(0xFF1C7A4F);
@@ -372,7 +392,10 @@ class TodayPageState extends State<TodayPage> {
                                     vertical: 2,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: _statusBackgroundColor(status),
+                                    color: _statusBackgroundColor(
+                                      status,
+                                      isDark,
+                                    ),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Text(
@@ -380,7 +403,7 @@ class TodayPageState extends State<TodayPage> {
                                     style: TextStyle(
                                       fontSize: 10,
                                       fontWeight: FontWeight.w600,
-                                      color: _statusTextColor(status),
+                                      color: _statusTextColor(status, isDark),
                                     ),
                                   ),
                                 ),
