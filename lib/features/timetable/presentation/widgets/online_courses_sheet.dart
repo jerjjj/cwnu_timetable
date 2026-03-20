@@ -19,6 +19,8 @@ class OnlineCoursesSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final maxHeight = MediaQuery.of(context).size.height * 0.72;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return SafeArea(
       child: Padding(
@@ -35,7 +37,7 @@ class OnlineCoursesSheet extends StatelessWidget {
               const SizedBox(height: 6),
               Text(
                 '共 ${records.length} 门',
-                style: const TextStyle(color: Color(0xFF5F6B7A)),
+                style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
               ),
               const SizedBox(height: 12),
               Expanded(
@@ -50,44 +52,57 @@ class OnlineCoursesSheet extends StatelessWidget {
                     return Container(
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: isDark
+                            ? theme.colorScheme.surfaceContainerHigh
+                            : Colors.white,
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(
                           color: color.withValues(alpha: 0.18),
                         ),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Color(0x12000000),
-                            blurRadius: 12,
-                            offset: Offset(0, 4),
-                          ),
-                        ],
+                        boxShadow: isDark
+                            ? null
+                            : const [
+                                BoxShadow(
+                                  color: Color(0x12000000),
+                                  blurRadius: 12,
+                                  offset: Offset(0, 4),
+                                ),
+                              ],
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             record.courseName,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
+                              color: theme.colorScheme.onSurface,
                             ),
                           ),
                           const SizedBox(height: 6),
                           Text(
                             '${formatWeekRanges(record.week)}  ${days[record.dayOfWeek - 1]} ${record.periods}',
-                            style: const TextStyle(
-                              color: Color(0xFF334155),
+                            style: TextStyle(
+                              color: theme.colorScheme.onSurfaceVariant,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
                           if (record.teacher.trim().isNotEmpty) ...[
                             const SizedBox(height: 4),
-                            Text('教师：${record.teacher}'),
+                            Text(
+                              '教师：${record.teacher}',
+                              style: TextStyle(
+                                color: theme.colorScheme.onSurface,
+                              ),
+                            ),
                           ],
                           const SizedBox(height: 4),
                           Text(
                             '地点：${record.placeName.isEmpty ? '线上' : record.placeName}',
+                            style: TextStyle(
+                              color: theme.colorScheme.onSurface,
+                            ),
                           ),
                         ],
                       ),
