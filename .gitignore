@@ -60,6 +60,7 @@ ios/.symlinks/
 native/target/
 rust_backend/target/
 **/target/
+native/.idea/
 
 # -----------------------------
 # Python
