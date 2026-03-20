@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/auth_session.dart';
@@ -99,5 +100,25 @@ class TermStartDateNotifier extends StateNotifier<DateTime> {
     final normalized = DateTime(date.year, date.month, date.day);
     await SessionStore.saveTermStartDate(normalized);
     state = normalized;
+  }
+}
+
+final themeModeProvider = StateNotifierProvider<ThemeModeNotifier, ThemeMode>(
+  (ref) => ThemeModeNotifier(),
+);
+
+class ThemeModeNotifier extends StateNotifier<ThemeMode> {
+  ThemeModeNotifier() : super(ThemeMode.system) {
+    _load();
+  }
+
+  Future<void> _load() async {
+    final mode = await SessionStore.loadThemeMode();
+    state = mode;
+  }
+
+  Future<void> update(ThemeMode mode) async {
+    await SessionStore.saveThemeMode(mode);
+    state = mode;
   }
 }

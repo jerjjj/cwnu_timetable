@@ -46,6 +46,17 @@ class _SettingsTabPageState extends ConsumerState<SettingsTabPage> {
     return '$y-$m-$d';
   }
 
+  String _themeModeLabel(ThemeMode mode) {
+    switch (mode) {
+      case ThemeMode.system:
+        return '跟随系统设置';
+      case ThemeMode.light:
+        return '始终使用浅色';
+      case ThemeMode.dark:
+        return '始终使用深色';
+    }
+  }
+
   Future<void> _pickDate() async {
     final current =
         (_termStartDate ?? ref.read(termStartDateProvider)) as DateTime;
@@ -155,6 +166,8 @@ class _SettingsTabPageState extends ConsumerState<SettingsTabPage> {
   @override
   Widget build(BuildContext context) {
     final date = _termStartDate;
+    final themeMode = ref.watch(themeModeProvider);
+
     return Scaffold(
       appBar: AppBar(title: const Text('设置')),
       body: date == null
@@ -171,9 +184,52 @@ class _SettingsTabPageState extends ConsumerState<SettingsTabPage> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                const Text(
+                Card(
+                  child: Column(
+                    children: [
+                      ListTile(
+                        title: const Text('外观模式'),
+                        subtitle: Text(_themeModeLabel(themeMode)),
+                        trailing: const Icon(Icons.palette_outlined),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                        child: SegmentedButton<ThemeMode>(
+                          segments: const [
+                            ButtonSegment(
+                              value: ThemeMode.system,
+                              icon: Icon(Icons.brightness_auto),
+                              label: Text('跟随系统'),
+                            ),
+                            ButtonSegment(
+                              value: ThemeMode.light,
+                              icon: Icon(Icons.light_mode),
+                              label: Text('浅色'),
+                            ),
+                            ButtonSegment(
+                              value: ThemeMode.dark,
+                              icon: Icon(Icons.dark_mode),
+                              label: Text('深色'),
+                            ),
+                          ],
+                          selected: {themeMode},
+                          onSelectionChanged: (selected) {
+                            ref
+                                .read(themeModeProvider.notifier)
+                                .update(selected.first);
+                          },
+                          showSelectedIcon: false,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
                   '默认开学日期：3月2日。课表页会按该日期自动切换到当前周。',
-                  style: TextStyle(color: Color(0xFF5F6B7A)),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
                 ),
                 const SizedBox(height: 20),
                 SizedBox(

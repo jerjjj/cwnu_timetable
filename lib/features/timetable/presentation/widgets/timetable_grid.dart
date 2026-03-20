@@ -165,12 +165,21 @@ class TimetableGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [Color(0xFF7FC3F5), Color(0xFF9AD4F8), Color(0xFFB8E0F8)],
+          colors: isDark
+              ? [theme.colorScheme.surfaceContainer, theme.colorScheme.surface]
+              : [
+                  const Color(0xFF7FC3F5),
+                  const Color(0xFF9AD4F8),
+                  const Color(0xFFB8E0F8),
+                ],
         ),
       ),
       child: LayoutBuilder(
@@ -204,17 +213,25 @@ class TimetableGrid extends StatelessWidget {
                         child: Container(
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
-                            color: const Color(0xFF0E3B62),
+                            color: isDark
+                                ? theme.colorScheme.surfaceContainerHighest
+                                : const Color(0xFF0E3B62),
                             border: Border.all(
-                              color: const Color(0xFF3D84BE),
+                              color: isDark
+                                  ? theme.colorScheme.outline.withValues(
+                                      alpha: 0.3,
+                                    )
+                                  : const Color(0xFF3D84BE),
                               width: 0.5,
                             ),
                           ),
                           child: Text(
                             monthLabel,
                             textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: isDark
+                                  ? theme.colorScheme.onSurface
+                                  : Colors.white,
                               fontSize: 9,
                               fontWeight: FontWeight.w700,
                               height: 1.0,
@@ -235,11 +252,23 @@ class TimetableGrid extends StatelessWidget {
                               width: dayWidth,
                               alignment: Alignment.center,
                               decoration: BoxDecoration(
-                                color: isToday
-                                    ? const Color(0xFF1E5B8B)
-                                    : const Color(0xFF2B6EA7),
+                                color: isDark
+                                    ? (isToday
+                                          ? theme
+                                                .colorScheme
+                                                .surfaceContainerHighest
+                                          : theme
+                                                .colorScheme
+                                                .surfaceContainerHigh)
+                                    : (isToday
+                                          ? const Color(0xFF1E5B8B)
+                                          : const Color(0xFF2B6EA7)),
                                 border: Border.all(
-                                  color: const Color(0xFF3D84BE),
+                                  color: isDark
+                                      ? theme.colorScheme.outline.withValues(
+                                          alpha: 0.3,
+                                        )
+                                      : const Color(0xFF3D84BE),
                                   width: 0.5,
                                 ),
                               ),
@@ -248,8 +277,10 @@ class TimetableGrid extends StatelessWidget {
                                 children: [
                                   Text(
                                     days[i],
-                                    style: const TextStyle(
-                                      color: Colors.white,
+                                    style: TextStyle(
+                                      color: isDark
+                                          ? theme.colorScheme.onSurface
+                                          : Colors.white,
                                       fontWeight: FontWeight.w700,
                                       fontSize: 13,
                                       height: 1.0,
@@ -258,8 +289,11 @@ class TimetableGrid extends StatelessWidget {
                                   const SizedBox(height: 1),
                                   Text(
                                     '${dayDate.day}日',
-                                    style: const TextStyle(
-                                      color: Color(0xFFDDF0FF),
+                                    style: TextStyle(
+                                      color: isDark
+                                          ? theme.colorScheme.onSurface
+                                                .withValues(alpha: 0.7)
+                                          : const Color(0xFFDDF0FF),
                                       fontWeight: FontWeight.w600,
                                       fontSize: 9,
                                       height: 1.0,
@@ -283,8 +317,10 @@ class TimetableGrid extends StatelessWidget {
                               child: Center(
                                 child: Text(
                                   '${i + 1}',
-                                  style: const TextStyle(
-                                    color: Color(0xFF255D86),
+                                  style: TextStyle(
+                                    color: isDark
+                                        ? theme.colorScheme.onSurfaceVariant
+                                        : const Color(0xFF255D86),
                                     fontSize: 13,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -335,7 +371,11 @@ class TimetableGrid extends StatelessWidget {
                                       16;
                                   final color = isCurrentWeek
                                       ? colorFor(record.courseName)
-                                      : const Color(0xFFE2E7EE);
+                                      : (isDark
+                                            ? theme
+                                                  .colorScheme
+                                                  .surfaceContainerHighest
+                                            : const Color(0xFFE2E7EE));
                                   final location = record.placeName.trim();
                                   final locationText = location.isEmpty
                                       ? '@待定'
@@ -370,7 +410,13 @@ class TimetableGrid extends StatelessWidget {
                                               style: TextStyle(
                                                 color: isCurrentWeek
                                                     ? Colors.white
-                                                    : const Color(0xFF5B6470),
+                                                    : (isDark
+                                                          ? theme
+                                                                .colorScheme
+                                                                .onSurfaceVariant
+                                                          : const Color(
+                                                              0xFF5B6470,
+                                                            )),
                                                 fontSize: 11,
                                                 fontWeight: FontWeight.w600,
                                                 height: 1.1,
@@ -416,25 +462,9 @@ class _GridPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = const Color(0x6689BCE3)
-      ..strokeWidth = 0.6;
-
-    for (var row = 0; row <= totalPeriods; row++) {
-      final y = rowHeight * row;
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
-    }
-
-    for (var column = 0; column <= 7; column++) {
-      final x = dayWidth * column;
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
-    }
+    // 分割线已删除
   }
 
   @override
-  bool shouldRepaint(covariant _GridPainter oldDelegate) {
-    return rowHeight != oldDelegate.rowHeight ||
-        dayWidth != oldDelegate.dayWidth ||
-        totalPeriods != oldDelegate.totalPeriods;
-  }
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

@@ -185,35 +185,40 @@ class TodayPageState extends State<TodayPage> {
     final currentWeek = _currentWeek();
     final weekdayText = _weekdayLabels[now.weekday - 1];
     final courses = _todayCourses();
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFEAF4FF),
+      backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
         title: Text('第$currentWeek周 $weekdayText'),
         centerTitle: true,
-        backgroundColor: const Color(0xFFF2F4F8),
-        surfaceTintColor: const Color(0xFFF2F4F8),
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Color(0xFF4EA8E5),
-                    Color(0xFF7DB9E6),
-                    Color(0xFFD4E9F9),
-                  ],
-                ),
+              decoration: BoxDecoration(
+                color: isDark ? theme.colorScheme.surface : null,
+                gradient: isDark
+                    ? null
+                    : const LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Color(0xFF4EA8E5),
+                          Color(0xFF7DB9E6),
+                          Color(0xFFD4E9F9),
+                        ],
+                      ),
               ),
               child: courses.isEmpty
-                  ? const Center(
+                  ? Center(
                       child: Text(
                         '今天没课哦，好好休息吧~',
                         style: TextStyle(
-                          color: Color(0xFF1F4E73),
+                          color: isDark
+                              ? theme.colorScheme.onSurface
+                              : const Color(0xFF1F4E73),
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
                         ),
@@ -230,7 +235,9 @@ class TodayPageState extends State<TodayPage> {
                         return Container(
                           padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
                           decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.95),
+                            color: isDark
+                                ? theme.colorScheme.surfaceContainerHigh
+                                : Colors.white.withValues(alpha: 0.95),
                             borderRadius: BorderRadius.circular(14),
                           ),
                           child: Stack(
@@ -243,19 +250,27 @@ class TodayPageState extends State<TodayPage> {
                                     child: Column(
                                       children: [
                                         const SizedBox(height: 1),
-                                        const Icon(
+                                        Icon(
                                           Icons.navigation,
                                           size: 14,
-                                          color: Color(0xFF6F8EA8),
+                                          color: isDark
+                                              ? theme
+                                                    .colorScheme
+                                                    .onSurfaceVariant
+                                              : const Color(0xFF6F8EA8),
                                         ),
                                         const SizedBox(height: 4),
                                         Text(
                                           _formatCourseTime(record),
                                           textAlign: TextAlign.center,
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                             fontSize: 11,
                                             height: 1.25,
-                                            color: Color(0xFF2E4558),
+                                            color: isDark
+                                                ? theme
+                                                      .colorScheme
+                                                      .onSurfaceVariant
+                                                : const Color(0xFF2E4558),
                                           ),
                                         ),
                                       ],
@@ -292,20 +307,24 @@ class TodayPageState extends State<TodayPage> {
                                                   maxLines: 1,
                                                   overflow:
                                                       TextOverflow.ellipsis,
-                                                  style: const TextStyle(
+                                                  style: TextStyle(
                                                     fontSize: 12,
                                                     fontWeight: FontWeight.w700,
-                                                    color: Color(0xFF1D2430),
+                                                    color: theme
+                                                        .colorScheme
+                                                        .onSurface,
                                                   ),
                                                 ),
                                               ),
                                               const SizedBox(width: 6),
                                               Text(
                                                 '${record.startPeriod}-${record.endPeriod}节',
-                                                style: const TextStyle(
+                                                style: TextStyle(
                                                   fontSize: 11,
                                                   fontWeight: FontWeight.w600,
-                                                  color: Color(0xFF1D2430),
+                                                  color: theme
+                                                      .colorScheme
+                                                      .onSurface,
                                                 ),
                                               ),
                                             ],
@@ -317,10 +336,11 @@ class TodayPageState extends State<TodayPage> {
                                                 : record.teacher.trim(),
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                               fontSize: 11,
                                               fontWeight: FontWeight.w500,
-                                              color: Color(0xFF1D2430),
+                                              color:
+                                                  theme.colorScheme.onSurface,
                                             ),
                                           ),
                                           const SizedBox(height: 2),
@@ -330,10 +350,11 @@ class TodayPageState extends State<TodayPage> {
                                                 : record.placeName.trim(),
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                               fontSize: 11,
                                               fontWeight: FontWeight.w500,
-                                              color: Color(0xFF1D2430),
+                                              color:
+                                                  theme.colorScheme.onSurface,
                                             ),
                                           ),
                                         ],

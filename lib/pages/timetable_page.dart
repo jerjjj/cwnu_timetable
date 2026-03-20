@@ -267,8 +267,10 @@ class TimetablePageState extends State<TimetablePage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
-      backgroundColor: const Color(0xFFEAF4FF),
+      backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
         leadingWidth: 108,
         leading: Padding(
@@ -290,8 +292,6 @@ class TimetablePageState extends State<TimetablePage> {
         ),
         title: Text('第$_selectedWeek周'),
         centerTitle: true,
-        backgroundColor: Colors.white,
-        surfaceTintColor: Colors.white,
         actions: [
           IconButton(
             onPressed: _showWeekPickerDialog,

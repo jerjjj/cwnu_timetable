@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -19,6 +20,7 @@ class SessionStore {
   static const _kIgnoredUpdateVersion = 'update.ignored.version';
   static const _kMigratedToSecure = 'auth.migrated_to_secure';
   static const _kCourseColors = 'timetable.course_colors';
+  static const _kThemeMode = 'settings.theme_mode';
 
   static const _secureStorage = FlutterSecureStorage(
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
@@ -281,5 +283,19 @@ class SessionStore {
       return fallback;
     }
     return DateTime(parsed.year, parsed.month, parsed.day);
+  }
+
+  static Future<void> saveThemeMode(ThemeMode mode) async {
+    final prefs = await _preferences;
+    await prefs.setInt(_kThemeMode, mode.index);
+  }
+
+  static Future<ThemeMode> loadThemeMode() async {
+    final prefs = await _preferences;
+    final index = prefs.getInt(_kThemeMode);
+    if (index == null || index < 0 || index >= ThemeMode.values.length) {
+      return ThemeMode.system;
+    }
+    return ThemeMode.values[index];
   }
 }

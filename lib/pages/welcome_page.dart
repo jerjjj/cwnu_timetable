@@ -7,13 +7,25 @@ class WelcomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFFEAF3FB), Color(0xFFD4E8F8), Color(0xFFEAF6FF)],
+            colors: isDark
+                ? [
+                    theme.colorScheme.primaryContainer,
+                    theme.colorScheme.surface,
+                  ]
+                : [
+                    const Color(0xFFEAF3FB),
+                    const Color(0xFFD4E8F8),
+                    const Color(0xFFEAF6FF),
+                  ],
           ),
         ),
         child: SafeArea(
@@ -31,23 +43,23 @@ class WelcomePage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 22),
-                const Text(
+                Text(
                   '欢迎使用稀饭课表',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 30,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF1D2B3A),
+                    color: theme.colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 10),
-                const Text(
+                Text(
                   '专为西华师大学子设计的课表软件',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
-                    color: Color(0xFF5A6878),
+                    color: theme.colorScheme.onSurfaceVariant,
                   ),
                 ),
                 const Spacer(flex: 3),
@@ -63,7 +75,6 @@ class WelcomePage extends StatelessWidget {
                           borderRadius: BorderRadius.circular(26),
                         ),
                         elevation: 4,
-                        backgroundColor: const Color(0xFF1D5F9A),
                       ),
                       child: const Text(
                         '开始使用',

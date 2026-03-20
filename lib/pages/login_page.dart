@@ -167,13 +167,25 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFFEAF3FB), Color(0xFFD4E8F8), Color(0xFFEAF6FF)],
+            colors: isDark
+                ? [
+                    theme.colorScheme.primaryContainer,
+                    theme.colorScheme.surface,
+                  ]
+                : [
+                    const Color(0xFFEAF3FB),
+                    const Color(0xFFD4E8F8),
+                    const Color(0xFFEAF6FF),
+                  ],
           ),
         ),
         child: SafeArea(
@@ -184,7 +196,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 constraints: const BoxConstraints(maxWidth: 420),
                 child: Card(
                   elevation: 0,
-                  color: Colors.white.withValues(alpha: 0.94),
+                  color: isDark
+                      ? theme.colorScheme.surfaceContainerHigh
+                      : Colors.white.withValues(alpha: 0.94),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                   ),
