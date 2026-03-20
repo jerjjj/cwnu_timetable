@@ -22,10 +22,18 @@ class UpdateHelper {
     if (!context.mounted) return;
 
     if (!AppUpdateService.isNewerVersion(latest: latest, current: current)) {
+      final theme = Theme.of(context);
+      final isDark = theme.brightness == Brightness.dark;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('当前已是最新版本'),
+        SnackBar(
+          content: Text(
+            '当前已是最新版本',
+            style: TextStyle(color: isDark ? Colors.white : null),
+          ),
           behavior: SnackBarBehavior.floating,
+          backgroundColor: isDark
+              ? theme.colorScheme.surfaceContainerHighest
+              : theme.colorScheme.inverseSurface,
         ),
       );
       return;
@@ -111,10 +119,18 @@ class UpdateHelper {
         Navigator.of(context, rootNavigator: true).pop();
       }
 
+      final theme = Theme.of(context);
+      final isDark = theme.brightness == Brightness.dark;
       messenger.showSnackBar(
-        const SnackBar(
-          content: Text('下载完成，正在启动安装器...'),
+        SnackBar(
+          content: Text(
+            '下载完成，正在启动安装器...',
+            style: TextStyle(color: isDark ? Colors.white : null),
+          ),
           behavior: SnackBarBehavior.floating,
+          backgroundColor: isDark
+              ? theme.colorScheme.surfaceContainerHighest
+              : theme.colorScheme.inverseSurface,
         ),
       );
 

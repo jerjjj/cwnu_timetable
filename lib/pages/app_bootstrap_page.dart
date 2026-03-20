@@ -194,8 +194,20 @@ class _AppBootstrapPageState extends ConsumerState<AppBootstrapPage> {
       if (Navigator.of(context, rootNavigator: true).canPop()) {
         Navigator.of(context, rootNavigator: true).pop();
       }
+      final theme = Theme.of(context);
+      final isDark = theme.brightness == Brightness.dark;
       messenger.hideCurrentSnackBar();
-      messenger.showSnackBar(const SnackBar(content: Text('下载完成，正在启动安装器...')));
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(
+            '下载完成，正在启动安装器...',
+            style: TextStyle(color: isDark ? Colors.white : null),
+          ),
+          backgroundColor: isDark
+              ? theme.colorScheme.surfaceContainerHighest
+              : theme.colorScheme.inverseSurface,
+        ),
+      );
       try {
         await AppUpdateService.installApk(apkFile);
       } catch (e) {

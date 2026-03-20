@@ -34,8 +34,13 @@ class WeekPickerDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Dialog(
-      backgroundColor: const Color(0xFFF4F6FA),
+      backgroundColor: isDark
+          ? theme.colorScheme.surfaceContainerHigh
+          : const Color(0xFFF4F6FA),
       insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       child: SizedBox(
@@ -66,12 +71,16 @@ class WeekPickerDialog extends StatelessWidget {
                   child: Container(
                     decoration: BoxDecoration(
                       color: isSelected
-                          ? const Color(0xFFE2F0FF)
+                          ? (isDark
+                                ? theme.colorScheme.primaryContainer
+                                : const Color(0xFFE2F0FF))
                           : Colors.transparent,
                       borderRadius: BorderRadius.circular(14),
                       border: Border.all(
                         color: isSelected
-                            ? const Color(0xFF3B78AC)
+                            ? (isDark
+                                  ? theme.colorScheme.primary
+                                  : const Color(0xFF3B78AC))
                             : Colors.transparent,
                         width: 2,
                       ),
@@ -87,7 +96,9 @@ class WeekPickerDialog extends StatelessWidget {
                             fontWeight: isSelected
                                 ? FontWeight.w700
                                 : FontWeight.w600,
-                            color: const Color(0xFF1C2A39),
+                            color: isDark
+                                ? theme.colorScheme.onSurface
+                                : const Color(0xFF1C2A39),
                           ),
                         ),
                       ],

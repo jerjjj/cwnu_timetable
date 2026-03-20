@@ -95,12 +95,20 @@ class _SettingsTabPageState extends ConsumerState<SettingsTabPage> {
       _isSaving = false;
     });
 
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final messenger = ScaffoldMessenger.of(context);
     messenger.hideCurrentSnackBar();
     messenger.showSnackBar(
-      const SnackBar(
-        content: Text('设置已保存'),
+      SnackBar(
+        content: Text(
+          '设置已保存',
+          style: TextStyle(color: isDark ? Colors.white : null),
+        ),
         behavior: SnackBarBehavior.floating,
+        backgroundColor: isDark
+            ? theme.colorScheme.surfaceContainerHighest
+            : theme.colorScheme.inverseSurface,
       ),
     );
   }
@@ -126,12 +134,20 @@ class _SettingsTabPageState extends ConsumerState<SettingsTabPage> {
     if (!mounted) {
       return;
     }
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final messenger = ScaffoldMessenger.of(context);
     messenger.hideCurrentSnackBar();
     messenger.showSnackBar(
-      const SnackBar(
-        content: Text('分享链接已复制'),
+      SnackBar(
+        content: Text(
+          '分享链接已复制',
+          style: TextStyle(color: isDark ? Colors.white : null),
+        ),
         behavior: SnackBarBehavior.floating,
+        backgroundColor: isDark
+            ? theme.colorScheme.surfaceContainerHighest
+            : theme.colorScheme.inverseSurface,
       ),
     );
   }

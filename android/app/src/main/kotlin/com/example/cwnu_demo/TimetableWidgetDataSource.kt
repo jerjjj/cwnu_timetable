@@ -146,12 +146,7 @@ object TimetableWidgetDataSource {
 
     fun colorFor(context: Context, key: String): Int {
         val map = flutterColorMap ?: loadFlutterColors(context)
-        val color = map[key]
-        if (color != null) {
-            return color
-        }
-        android.util.Log.d("Widget", "Color not found for: $key, map size: ${map.size}")
-        return generateColor(key)
+        return map[key] ?: defaultColor(key)
     }
 
     fun clearColorCache() {
@@ -161,9 +156,7 @@ object TimetableWidgetDataSource {
     private fun loadFlutterColors(context: Context): Map<String, Int> {
         val prefs = context.getSharedPreferences("FlutterSharedPreferences", Context.MODE_PRIVATE)
         val raw = prefs.getString("flutter.timetable.course_colors", null)
-        android.util.Log.d("Widget", "Loading colors, raw: ${raw?.take(100)}")
         if (raw == null) {
-            android.util.Log.w("Widget", "No color data found in SharedPreferences")
             return emptyMap()
         }
         return try {
@@ -174,70 +167,30 @@ object TimetableWidgetDataSource {
                 map[name] = value.toInt()
             }
             flutterColorMap = map
-            android.util.Log.d("Widget", "Loaded ${map.size} colors")
             map
         } catch (e: Exception) {
-            android.util.Log.e("Widget", "Failed to load colors", e)
             emptyMap()
         }
     }
 
-    private val colorPalette = arrayOf(
-        doubleArrayOf(210.0, 0.68, 0.60),
-        doubleArrayOf(340.0, 0.60, 0.60),
-        doubleArrayOf(140.0, 0.55, 0.55),
-        doubleArrayOf(25.0, 0.72, 0.60),
-        doubleArrayOf(270.0, 0.52, 0.60),
-        doubleArrayOf(175.0, 0.55, 0.52),
-        doubleArrayOf(45.0, 0.68, 0.58),
-        doubleArrayOf(195.0, 0.60, 0.56),
-        doubleArrayOf(320.0, 0.50, 0.62),
-        doubleArrayOf(85.0, 0.48, 0.55),
-        doubleArrayOf(155.0, 0.50, 0.52),
-        doubleArrayOf(290.0, 0.48, 0.58),
-        doubleArrayOf(10.0, 0.60, 0.58),
-        doubleArrayOf(120.0, 0.45, 0.55),
-        doubleArrayOf(230.0, 0.55, 0.56),
-        doubleArrayOf(5.0, 0.55, 0.58),
-        doubleArrayOf(355.0, 0.55, 0.60),
-        doubleArrayOf(160.0, 0.48, 0.54),
-        doubleArrayOf(60.0, 0.58, 0.60),
-        doubleArrayOf(250.0, 0.48, 0.58),
-        doubleArrayOf(200.0, 0.55, 0.58),
-        doubleArrayOf(30.0, 0.60, 0.58),
-        doubleArrayOf(130.0, 0.42, 0.52),
-        doubleArrayOf(310.0, 0.45, 0.58),
+    private val defaultColors = intArrayOf(
+        0xFF42A5F5.toInt(),
+        0xFFE57373.toInt(),
+        0xFF66BB6A.toInt(),
+        0xFFFFA726.toInt(),
+        0xFFAB47BC.toInt(),
+        0xFF26C6DA.toInt(),
+        0xFFFFCA28.toInt(),
+        0xFF7E57C2.toInt(),
+        0xFFEC407A.toInt(),
+        0xFF8D6E63.toInt(),
+        0xFF78909C.toInt(),
+        0xFF5C6BC0.toInt(),
     )
 
-    private fun generateColor(key: String): Int {
-        val seed = key.hashCode() and Int.MAX_VALUE
-        val idx = seed % colorPalette.size
-        val hsl = colorPalette[idx]
-        val hue = ((hsl[0] + (seed % 20) - 10) % 360).let { if (it < 0) it + 360 else it }
-        val sat = hsl[1]
-        val light = hsl[2]
-        return hslToColor(hue.toFloat(), sat.toFloat(), light.toFloat())
-    }
-
-    private fun hslToColor(hue: Float, sat: Float, light: Float): Int {
-        val c = (1 - Math.abs(2 * light - 1)) * sat
-        val x = c * (1 - Math.abs((hue / 60) % 2 - 1))
-        val m = light - c / 2
-
-        val (r1, g1, b1) = when {
-            hue < 60 -> Triple(c, x, 0f)
-            hue < 120 -> Triple(x, c, 0f)
-            hue < 180 -> Triple(0f, c, x)
-            hue < 240 -> Triple(0f, x, c)
-            hue < 300 -> Triple(x, 0f, c)
-            else -> Triple(c, 0f, x)
-        }
-
-        val r = ((r1 + m) * 255).toInt().coerceIn(0, 255)
-        val g = ((g1 + m) * 255).toInt().coerceIn(0, 255)
-        val b = ((b1 + m) * 255).toInt().coerceIn(0, 255)
-
-        return (0xFF shl 24) or (r shl 16) or (g shl 8) or b
+    private fun defaultColor(key: String): Int {
+        val idx = (key.hashCode() and Int.MAX_VALUE) % defaultColors.size
+        return defaultColors[idx]
     }
 
     private fun computeCurrentWeek(context: Context, today: LocalDate): Int {

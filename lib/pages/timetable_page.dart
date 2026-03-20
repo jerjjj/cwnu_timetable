@@ -176,12 +176,20 @@ class TimetablePageState extends State<TimetablePage> {
   void _showOnlineCourses() {
     final onlineRecords = _onlineRecords;
     if (onlineRecords.isEmpty) {
+      final theme = Theme.of(context);
+      final isDark = theme.brightness == Brightness.dark;
       final messenger = ScaffoldMessenger.of(context);
       messenger.hideCurrentSnackBar();
       messenger.showSnackBar(
-        const SnackBar(
-          content: Text('当前没有线上课程'),
+        SnackBar(
+          content: Text(
+            '当前没有线上课程',
+            style: TextStyle(color: isDark ? Colors.white : null),
+          ),
           behavior: SnackBarBehavior.floating,
+          backgroundColor: isDark
+              ? theme.colorScheme.surfaceContainerHighest
+              : theme.colorScheme.inverseSurface,
         ),
       );
       return;
@@ -204,13 +212,21 @@ class TimetablePageState extends State<TimetablePage> {
     if (!mounted) {
       return;
     }
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final messenger = ScaffoldMessenger.of(context);
     messenger.hideCurrentSnackBar();
     messenger.showSnackBar(
-      const SnackBar(
-        content: Text('课表更新成功'),
-        duration: Duration(seconds: 2),
+      SnackBar(
+        content: Text(
+          '课表更新成功',
+          style: TextStyle(color: isDark ? Colors.white : null),
+        ),
+        duration: const Duration(seconds: 2),
         behavior: SnackBarBehavior.floating,
+        backgroundColor: isDark
+            ? theme.colorScheme.surfaceContainerHighest
+            : theme.colorScheme.inverseSurface,
       ),
     );
   }
