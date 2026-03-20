@@ -2,8 +2,6 @@ name: Build Android & iOS
 
 on:
   push:
-    tags:
-      - 'v*'
   workflow_dispatch:
 
 env:
