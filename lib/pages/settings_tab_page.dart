@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../providers/app_providers.dart';
 import '../services/update_helper.dart';
@@ -22,6 +23,8 @@ class SettingsTabPage extends ConsumerStatefulWidget {
 
 class _SettingsTabPageState extends ConsumerState<SettingsTabPage> {
   static const _shareUrl = 'https://gitee.com/jerjjj_admin/xifankebiao/';
+  static const _githubUrl = 'https://github.com/jerjjj/cwnu_timetable';
+  static const _giteeUrl = 'https://gitee.com/jerjjj_admin/cwnu_timetable';
   DateTime? _termStartDate;
   bool _isSaving = false;
   bool _isLoggingOut = false;
@@ -150,6 +153,10 @@ class _SettingsTabPageState extends ConsumerState<SettingsTabPage> {
             : theme.colorScheme.inverseSurface,
       ),
     );
+  }
+
+  Future<void> _openUrl(String url) async {
+    await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
   }
 
   Future<void> _checkUpdateManually() async {
@@ -285,6 +292,26 @@ class _SettingsTabPageState extends ConsumerState<SettingsTabPage> {
                     icon: const Icon(Icons.share_outlined),
                     label: const Text('分享该应用'),
                   ),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () => _openUrl(_githubUrl),
+                        icon: const Icon(Icons.code),
+                        label: const Text('GitHub'),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () => _openUrl(_giteeUrl),
+                        icon: const Icon(Icons.code),
+                        label: const Text('Gitee'),
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 12),
                 SizedBox(
