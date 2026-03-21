@@ -83,11 +83,15 @@ class TimetablePageState extends State<TimetablePage> {
     }
   }
 
+  List<CourseRecord>? _cachedVisibleRecords;
+  List<CourseRecord>? _cachedOnlineRecords;
   List<CourseRecord> get _visibleRecords {
-    return _records.where((r) => !r.isOnline).toList();
+    _cachedVisibleRecords ??= _records.where((r) => !r.isOnline).toList();
+    return _cachedVisibleRecords!;
   }
 
   List<CourseRecord> get _onlineRecords {
+    if (_cachedOnlineRecords != null) return _cachedOnlineRecords!;
     final list = _records.where((r) => r.isOnline).toList();
     list.sort((a, b) {
       final aWeek = a.week.isEmpty ? 0 : a.week.first;
@@ -98,22 +102,32 @@ class TimetablePageState extends State<TimetablePage> {
       if (dayCompare != 0) return dayCompare;
       return a.startPeriod.compareTo(b.startPeriod);
     });
+    _cachedOnlineRecords = list;
     return list;
   }
+
+  final Map<int, List<CourseRecord>> _recordsByDayCache = {};
 
   List<CourseRecord> _recordsByDay(int day) {
+    if (_recordsByDayCache.containsKey(day)) {
+      return _recordsByDayCache[day]!;
+    }
     final list = _visibleRecords.where((r) => r.dayOfWeek == day).toList();
     list.sort((a, b) => a.startPeriod.compareTo(b.startPeriod));
+    _recordsByDayCache[day] = list;
     return list;
   }
 
+  int? _cachedTotalPeriods;
   int get _totalPeriods {
+    if (_cachedTotalPeriods != null) return _cachedTotalPeriods!;
     var maxPeriod = 12;
     for (final record in _visibleRecords) {
       if (record.endPeriod > maxPeriod) {
         maxPeriod = record.endPeriod;
       }
     }
+    _cachedTotalPeriods = maxPeriod;
     return maxPeriod;
   }
 
@@ -255,6 +269,11 @@ class TimetablePageState extends State<TimetablePage> {
       }
       setState(() {
         _records = records;
+        // 清除缓存
+        _cachedVisibleRecords = null;
+        _cachedOnlineRecords = null;
+        _recordsByDayCache.clear();
+        _cachedTotalPeriods = null;
         final newMaxWeek = CourseUtils.findMaxWeek(records);
         _maxWeek = newMaxWeek;
         _selectedWeek = CourseUtils.computeCurrentWeek(

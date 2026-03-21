@@ -63,6 +63,10 @@ class TodayPageState extends State<TodayPage> {
       if (cached.isNotEmpty) {
         _records = cached;
       }
+      // 清除缓存
+      _cachedTodayCourses = null;
+      _cachedWeek = null;
+      _cachedWeekday = null;
     });
   }
 
@@ -73,6 +77,10 @@ class TodayPageState extends State<TodayPage> {
     }
     setState(() {
       _termStartDate = date;
+      // 清除缓存
+      _cachedTodayCourses = null;
+      _cachedWeek = null;
+      _cachedWeekday = null;
     });
   }
 
@@ -176,10 +184,21 @@ class TodayPageState extends State<TodayPage> {
 
   Color _accentColor(String key) => _palette.colorFor(key);
 
+  List<CourseRecord>? _cachedTodayCourses;
+  int? _cachedWeek;
+  int? _cachedWeekday;
+
   List<CourseRecord> _todayCourses() {
     final now = DateTime.now();
     final todayWeekday = now.weekday;
     final currentWeek = _currentWeek();
+
+    // 使用缓存避免重复计算
+    if (_cachedTodayCourses != null &&
+        _cachedWeek == currentWeek &&
+        _cachedWeekday == todayWeekday) {
+      return _cachedTodayCourses!;
+    }
 
     final courses = _records
         .where((r) => !r.isOnline)
@@ -196,6 +215,11 @@ class TodayPageState extends State<TodayPage> {
 
     final merged = grouped.values.map(CourseUtils.mergeRecords).toList();
     merged.sort((a, b) => a.startPeriod.compareTo(b.startPeriod));
+
+    _cachedTodayCourses = merged;
+    _cachedWeek = currentWeek;
+    _cachedWeekday = todayWeekday;
+
     return merged;
   }
 
