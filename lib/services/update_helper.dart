@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../config/error_handler.dart';
 import '../services/app_update_service.dart';
 import '../services/session_store.dart';
 
@@ -141,7 +142,7 @@ class UpdateHelper {
         await showSimpleDialog(
           context,
           title: '未能启动安装器',
-          message: '安装包已下载，但未能自动拉起安装界面。\n\n请确认系统已允许本应用安装未知来源应用，然后重试。\n\n详情: $e',
+          message: '安装包已下载，但未能自动拉起安装界面。\n\n请确认系统已允许本应用安装未知来源应用，然后重试。',
         );
       }
     } catch (e) {
@@ -152,7 +153,7 @@ class UpdateHelper {
       await showSimpleDialog(
         context,
         title: '下载失败',
-        message: '更新安装包下载失败，请稍后重试。\n\n原因: $e',
+        message: ErrorHandler.getFriendlyMessage(e),
       );
     } finally {
       progress.dispose();

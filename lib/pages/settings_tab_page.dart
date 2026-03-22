@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../config/error_handler.dart';
 import '../providers/app_providers.dart';
 import '../services/update_helper.dart';
 import 'licenses_page.dart';
@@ -176,7 +177,7 @@ class _SettingsTabPageState extends ConsumerState<SettingsTabPage> {
       await UpdateHelper.showSimpleDialog(
         context,
         title: '检查失败',
-        message: '检查更新失败：$e',
+        message: ErrorHandler.getFriendlyMessage(e),
       );
     } finally {
       if (mounted) {

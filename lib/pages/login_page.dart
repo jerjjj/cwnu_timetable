@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../config/error_handler.dart';
 import '../config/page_animations.dart';
 import '../models/auth_session.dart';
 import '../providers/app_providers.dart';
@@ -104,7 +105,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         return;
       }
       setState(() {
-        _errorText = e.toString();
+        _errorText = ErrorHandler.getFriendlyMessage(e);
       });
     } finally {
       if (mounted) {

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../config/class_period_time_ranges.dart';
 import '../config/color_palette.dart';
 import '../config/course_utils.dart';
+import '../config/error_handler.dart';
 import '../features/timetable/presentation/widgets/online_courses_sheet.dart';
 import '../features/timetable/presentation/widgets/timetable_grid.dart';
 import '../models/auth_session.dart';
@@ -289,7 +290,7 @@ class TimetablePageState extends State<TimetablePage> {
         return;
       }
       setState(() {
-        _errorText = e.toString();
+        _errorText = ErrorHandler.getFriendlyMessage(e);
       });
     } finally {
       if (mounted) {

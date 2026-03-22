@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import '../config/error_handler.dart';
 import '../models/course_record.dart';
 import '../src/rust/api.dart' as rust_api;
 
@@ -19,7 +20,7 @@ class TimetableApi {
         jwxtPassword: jwxtPassword,
       );
     } on Exception catch (e) {
-      throw Exception('Rust抓取失败: $e');
+      throw AppError(ErrorHandler.getFriendlyMessage(e), originalError: e);
     }
   }
 
@@ -36,7 +37,7 @@ class TimetableApi {
         password: ssoPassword,
       );
     } on Exception catch (e) {
-      throw Exception('Rust抓取失败: $e');
+      throw AppError(ErrorHandler.getFriendlyMessage(e), originalError: e);
     }
   }
 
@@ -56,7 +57,7 @@ class TimetableApi {
       final rawData = jsonDecode(jsonStr) as Map<String, dynamic>;
       return _parseRecords(rawData);
     } on Exception catch (e) {
-      throw Exception('Rust抓取失败: $e');
+      throw AppError(ErrorHandler.getFriendlyMessage(e), originalError: e);
     }
   }
 
