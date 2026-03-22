@@ -66,3 +66,58 @@ Future<String> fetchTimetableJsonWithCaptchaFrb({
   jwxtPassword: jwxtPassword,
   captcha: captcha,
 );
+
+/// 使用默认参数快速获取成绩 JSON（学期 221，超时 30 秒）
+Future<String> fetchGradesJsonSimpleFrb({
+  required String ssoUsername,
+  required String ssoPassword,
+  required String jwxtUsername,
+  required String jwxtPassword,
+}) => RustLib.instance.api.crateApiFetchGradesJsonSimpleFrb(
+  ssoUsername: ssoUsername,
+  ssoPassword: ssoPassword,
+  jwxtUsername: jwxtUsername,
+  jwxtPassword: jwxtPassword,
+);
+
+/// 成绩查询第一阶段：初始化 SSO 登录并检查是否需要验证码。
+/// 与课表查询共享同一个会话机制。
+///
+/// - 返回 `None`：无需验证码，可直接调用 `fetch_grades_with_captcha_frb`（captcha 传空）。
+/// - 返回 `Some(bytes)`：需要验证码，bytes 为验证码图片数据。
+Future<Uint8List?> checkSsoCaptchaForGradesFrb({
+  required String username,
+  required String password,
+}) => RustLib.instance.api.crateApiCheckSsoCaptchaForGradesFrb(
+  username: username,
+  password: password,
+);
+
+/// 成绩查询第二阶段：使用第一阶段存储的会话完成登录并获取成绩。
+///
+/// `captcha`：验证码文本，无需验证码时传空字符串。
+/// 需先调用 `check_sso_captcha_for_grades_frb` 初始化会话。
+Future<String> fetchGradesJsonFrb({
+  required String jwxtUsername,
+  required String jwxtPassword,
+  required String captcha,
+  required PlatformInt64 semesterId,
+}) => RustLib.instance.api.crateApiFetchGradesJsonFrb(
+  jwxtUsername: jwxtUsername,
+  jwxtPassword: jwxtPassword,
+  captcha: captcha,
+  semesterId: semesterId,
+);
+
+/// 获取解析后的成绩数据（支持两阶段验证码）
+Future<String> fetchGradesParsedFrb({
+  required String jwxtUsername,
+  required String jwxtPassword,
+  required String captcha,
+  required Int64List semesterIds,
+}) => RustLib.instance.api.crateApiFetchGradesParsedFrb(
+  jwxtUsername: jwxtUsername,
+  jwxtPassword: jwxtPassword,
+  captcha: captcha,
+  semesterIds: semesterIds,
+);

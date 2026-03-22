@@ -21,6 +21,7 @@ class SessionStore {
   static const _kMigratedToSecure = 'auth.migrated_to_secure';
   static const _kCourseColors = 'timetable.course_colors';
   static const _kThemeMode = 'settings.theme_mode';
+  static const _kCachedGrades = 'grades.cached_data';
 
   static const _secureStorage = FlutterSecureStorage(
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
@@ -297,5 +298,22 @@ class SessionStore {
       return ThemeMode.system;
     }
     return ThemeMode.values[index];
+  }
+
+  // 成绩缓存
+  static Future<void> saveGrades(Map<String, dynamic> grades) async {
+    final prefs = await _preferences;
+    await prefs.setString(_kCachedGrades, jsonEncode(grades));
+  }
+
+  static Future<Map<String, dynamic>?> loadGrades() async {
+    final prefs = await _preferences;
+    final raw = prefs.getString(_kCachedGrades);
+    if (raw == null || raw.trim().isEmpty) return null;
+    try {
+      return jsonDecode(raw) as Map<String, dynamic>;
+    } catch (_) {
+      return null;
+    }
   }
 }

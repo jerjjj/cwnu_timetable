@@ -66,7 +66,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.11.1';
 
   @override
-  int get rustContentHash => 255312718;
+  int get rustContentHash => -1109291036;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -77,9 +77,35 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
 }
 
 abstract class RustLibApi extends BaseApi {
+  Future<Uint8List?> crateApiCheckSsoCaptchaForGradesFrb({
+    required String username,
+    required String password,
+  });
+
   Future<Uint8List?> crateApiCheckSsoCaptchaFrb({
     required String username,
     required String password,
+  });
+
+  Future<String> crateApiFetchGradesJsonFrb({
+    required String jwxtUsername,
+    required String jwxtPassword,
+    required String captcha,
+    required PlatformInt64 semesterId,
+  });
+
+  Future<String> crateApiFetchGradesJsonSimpleFrb({
+    required String ssoUsername,
+    required String ssoPassword,
+    required String jwxtUsername,
+    required String jwxtPassword,
+  });
+
+  Future<String> crateApiFetchGradesParsedFrb({
+    required String jwxtUsername,
+    required String jwxtPassword,
+    required String captcha,
+    required Int64List semesterIds,
   });
 
   Future<String> crateApiFetchTimetableJsonFrb({
@@ -117,7 +143,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   });
 
   @override
-  Future<Uint8List?> crateApiCheckSsoCaptchaFrb({
+  Future<Uint8List?> crateApiCheckSsoCaptchaForGradesFrb({
     required String username,
     required String password,
   }) {
@@ -138,6 +164,41 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_opt_list_prim_u_8_strict,
           decodeErrorData: sse_decode_AnyhowException,
         ),
+        constMeta: kCrateApiCheckSsoCaptchaForGradesFrbConstMeta,
+        argValues: [username, password],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiCheckSsoCaptchaForGradesFrbConstMeta =>
+      const TaskConstMeta(
+        debugName: "check_sso_captcha_for_grades_frb",
+        argNames: ["username", "password"],
+      );
+
+  @override
+  Future<Uint8List?> crateApiCheckSsoCaptchaFrb({
+    required String username,
+    required String password,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(username, serializer);
+          sse_encode_String(password, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 2,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_opt_list_prim_u_8_strict,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
         constMeta: kCrateApiCheckSsoCaptchaFrbConstMeta,
         argValues: [username, password],
         apiImpl: this,
@@ -149,6 +210,127 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     debugName: "check_sso_captcha_frb",
     argNames: ["username", "password"],
   );
+
+  @override
+  Future<String> crateApiFetchGradesJsonFrb({
+    required String jwxtUsername,
+    required String jwxtPassword,
+    required String captcha,
+    required PlatformInt64 semesterId,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(jwxtUsername, serializer);
+          sse_encode_String(jwxtPassword, serializer);
+          sse_encode_String(captcha, serializer);
+          sse_encode_i_64(semesterId, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 3,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_String,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiFetchGradesJsonFrbConstMeta,
+        argValues: [jwxtUsername, jwxtPassword, captcha, semesterId],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiFetchGradesJsonFrbConstMeta => const TaskConstMeta(
+    debugName: "fetch_grades_json_frb",
+    argNames: ["jwxtUsername", "jwxtPassword", "captcha", "semesterId"],
+  );
+
+  @override
+  Future<String> crateApiFetchGradesJsonSimpleFrb({
+    required String ssoUsername,
+    required String ssoPassword,
+    required String jwxtUsername,
+    required String jwxtPassword,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(ssoUsername, serializer);
+          sse_encode_String(ssoPassword, serializer);
+          sse_encode_String(jwxtUsername, serializer);
+          sse_encode_String(jwxtPassword, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 4,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_String,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiFetchGradesJsonSimpleFrbConstMeta,
+        argValues: [ssoUsername, ssoPassword, jwxtUsername, jwxtPassword],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiFetchGradesJsonSimpleFrbConstMeta =>
+      const TaskConstMeta(
+        debugName: "fetch_grades_json_simple_frb",
+        argNames: [
+          "ssoUsername",
+          "ssoPassword",
+          "jwxtUsername",
+          "jwxtPassword",
+        ],
+      );
+
+  @override
+  Future<String> crateApiFetchGradesParsedFrb({
+    required String jwxtUsername,
+    required String jwxtPassword,
+    required String captcha,
+    required Int64List semesterIds,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(jwxtUsername, serializer);
+          sse_encode_String(jwxtPassword, serializer);
+          sse_encode_String(captcha, serializer);
+          sse_encode_list_prim_i_64_strict(semesterIds, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 5,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_String,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiFetchGradesParsedFrbConstMeta,
+        argValues: [jwxtUsername, jwxtPassword, captcha, semesterIds],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiFetchGradesParsedFrbConstMeta =>
+      const TaskConstMeta(
+        debugName: "fetch_grades_parsed_frb",
+        argNames: ["jwxtUsername", "jwxtPassword", "captcha", "semesterIds"],
+      );
 
   @override
   Future<String> crateApiFetchTimetableJsonFrb({
@@ -174,7 +356,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 2,
+            funcId: 6,
             port: port_,
           );
         },
@@ -229,7 +411,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 3,
+            funcId: 7,
             port: port_,
           );
         },
@@ -271,7 +453,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 4,
+            funcId: 8,
             port: port_,
           );
         },
@@ -301,7 +483,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 5,
+            funcId: 9,
             port: port_,
           );
         },
@@ -335,6 +517,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   PlatformInt64 dco_decode_i_64(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return dcoDecodeI64(raw);
+  }
+
+  @protected
+  Int64List dco_decode_list_prim_i_64_strict(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dcoDecodeInt64List(raw);
   }
 
   @protected
@@ -385,6 +573,13 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   PlatformInt64 sse_decode_i_64(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return deserializer.buffer.getPlatformInt64();
+  }
+
+  @protected
+  Int64List sse_decode_list_prim_i_64_strict(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var len_ = sse_decode_i_32(deserializer);
+    return deserializer.buffer.getInt64List(len_);
   }
 
   @protected
@@ -453,6 +648,16 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   void sse_encode_i_64(PlatformInt64 self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     serializer.buffer.putPlatformInt64(self);
+  }
+
+  @protected
+  void sse_encode_list_prim_i_64_strict(
+    Int64List self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    serializer.buffer.putInt64List(self);
   }
 
   @protected

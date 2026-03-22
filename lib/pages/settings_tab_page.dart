@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../config/error_handler.dart';
 import '../providers/app_providers.dart';
 import '../services/update_helper.dart';
+import 'grade_page.dart';
 import 'licenses_page.dart';
 
 class SettingsTabPage extends ConsumerStatefulWidget {
@@ -283,6 +284,24 @@ class _SettingsTabPageState extends ConsumerState<SettingsTabPage> {
                           )
                         : const Icon(Icons.system_update_outlined),
                     label: const Text('检查更新'),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      final session = ref.read(authSessionProvider).value;
+                      if (session != null) {
+                        Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) => GradePage(session: session),
+                          ),
+                        );
+                      }
+                    },
+                    icon: const Icon(Icons.grade_outlined),
+                    label: const Text('成绩查询'),
                   ),
                 ),
                 const SizedBox(height: 12),
