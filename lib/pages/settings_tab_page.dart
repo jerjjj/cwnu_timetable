@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../config/error_handler.dart';
+import '../models/auth_session.dart';
 import '../providers/app_providers.dart';
 import '../services/update_helper.dart';
 import 'grade_page.dart';
@@ -12,10 +13,12 @@ import 'licenses_page.dart';
 class SettingsTabPage extends ConsumerStatefulWidget {
   const SettingsTabPage({
     super.key,
+    required this.session,
     required this.onTermStartDateChanged,
     required this.onLogout,
   });
 
+  final AuthSession session;
   final VoidCallback onTermStartDateChanged;
   final Future<void> Function() onLogout;
 
@@ -291,14 +294,11 @@ class _SettingsTabPageState extends ConsumerState<SettingsTabPage> {
                   width: double.infinity,
                   child: OutlinedButton.icon(
                     onPressed: () {
-                      final session = ref.read(authSessionProvider).value;
-                      if (session != null) {
-                        Navigator.of(context).push(
-                          MaterialPageRoute<void>(
-                            builder: (_) => GradePage(session: session),
-                          ),
-                        );
-                      }
+                      Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => GradePage(session: widget.session),
+                        ),
+                      );
                     },
                     icon: const Icon(Icons.grade_outlined),
                     label: const Text('成绩查询'),

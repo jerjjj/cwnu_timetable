@@ -39,11 +39,11 @@ class _GradePageState extends State<GradePage> {
     final cached = await SessionStore.loadGrades();
     if (cached != null && mounted) {
       _processData(cached);
-      setState(() => _loading = false);
-      _refreshGrades(silent: true);
-    } else {
-      _refreshGrades();
     }
+    if (mounted) {
+      setState(() => _loading = false);
+    }
+    _refreshGrades(silent: true);
   }
 
   void _processData(Map<String, dynamic> rawData) {

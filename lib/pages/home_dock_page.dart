@@ -95,6 +95,7 @@ class _HomeDockPageState extends ConsumerState<HomeDockPage> {
             initialRecords: widget.initialRecords,
           ),
           SettingsTabPage(
+            session: widget.session,
             onTermStartDateChanged: () {
               _todayKey.currentState?.reloadTermStartDate();
               _timetableKey.currentState?.reloadTermStartDate();
