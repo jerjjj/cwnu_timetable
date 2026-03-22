@@ -1,6 +1,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../config/course_utils.dart';
 import '../../../../models/course_record.dart';
 
 class TimetableGrid extends StatelessWidget {
@@ -32,52 +33,6 @@ class TimetableGrid extends StatelessWidget {
     return _normalizeDate(termStartDate).add(Duration(days: offsetDays));
   }
 
-  List<String> _teacherTokens(String teacherText) {
-    return teacherText
-        .split(RegExp(r'[、,，;；/\s]+'))
-        .map((e) => e.trim())
-        .where((e) => e.isNotEmpty)
-        .toList();
-  }
-
-  String _mergeTeacherText(Iterable<String> texts) {
-    final ordered = <String>[];
-    final seen = <String>{};
-    for (final text in texts) {
-      for (final token in _teacherTokens(text)) {
-        if (seen.add(token)) {
-          ordered.add(token);
-        }
-      }
-    }
-    return ordered.join('、');
-  }
-
-  CourseRecord _mergeRecords(List<CourseRecord> records) {
-    final base = records.first;
-    final mergedWeeks = records.expand((record) => record.week).toSet().toList()
-      ..sort();
-    final mergedTeacher = _mergeTeacherText(
-      records.map((record) => record.teacher),
-    );
-    final mergedCampus = records
-        .map((record) => record.campusName.trim())
-        .firstWhere((text) => text.isNotEmpty, orElse: () => base.campusName);
-    final mergedPlace = records
-        .map((record) => record.placeName.trim())
-        .firstWhere((text) => text.isNotEmpty, orElse: () => base.placeName);
-    return CourseRecord(
-      courseName: base.courseName,
-      week: mergedWeeks,
-      dayOfWeek: base.dayOfWeek,
-      periods: base.periods,
-      teacher: mergedTeacher,
-      campusName: mergedCampus,
-      placeName: mergedPlace,
-      isOnline: base.isOnline,
-    );
-  }
-
   List<CourseRecord> _selectRecordsForDisplay(List<CourseRecord> dayRecords) {
     final currentWeekOnly = dayRecords
         .where((record) => record.week.contains(selectedWeek))
@@ -92,7 +47,9 @@ class TimetableGrid extends StatelessWidget {
           '${record.courseName}|${record.dayOfWeek}|${record.startPeriod}-${record.endPeriod}';
       mergedByCourse.putIfAbsent(key, () => <CourseRecord>[]).add(record);
     }
-    final normalized = mergedByCourse.values.map(_mergeRecords).toList();
+    final normalized = mergedByCourse.values
+        .map(CourseUtils.mergeRecords)
+        .toList();
 
     final grouped = <String, List<CourseRecord>>{};
     for (final record in normalized) {
