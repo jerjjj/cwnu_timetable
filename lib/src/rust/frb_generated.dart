@@ -70,7 +70,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
-        stem: 'get_timetable',
+        stem: 'cwnu_api',
         ioDirectory: 'native/target/release/',
         webPrefix: 'pkg/',
       );

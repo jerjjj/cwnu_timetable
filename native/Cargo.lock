@@ -281,6 +281,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "cwnu_api"
+version = "0.1.0"
+dependencies = [
+ "aes",
+ "anyhow",
+ "base64",
+ "cbc",
+ "flutter_rust_bridge",
+ "rand 0.8.5",
+ "regex",
+ "reqwest",
+ "scraper",
+ "serde",
+ "serde_json",
+ "sha1",
+ "thiserror",
+ "tokio",
+ "url",
+]
+
+[[package]]
 name = "dart-sys"
 version = "4.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -566,27 +587,6 @@ checksum = "85649ca51fd72272d7821adaf274ad91c288277713d9c18820d8499a7ff69e9a"
 dependencies = [
  "typenum",
  "version_check",
-]
-
-[[package]]
-name = "get_timetable"
-version = "0.1.0"
-dependencies = [
- "aes",
- "anyhow",
- "base64",
- "cbc",
- "flutter_rust_bridge",
- "rand 0.8.5",
- "regex",
- "reqwest",
- "scraper",
- "serde",
- "serde_json",
- "sha1",
- "thiserror",
- "tokio",
- "url",
 ]
 
 [[package]]

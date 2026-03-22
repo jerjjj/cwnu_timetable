@@ -1,10 +1,10 @@
 [package]
-name = "get_timetable"
+name = "cwnu_api"
 version = "0.1.0"
 edition = "2021"
 
 [lib]
-name = "get_timetable"
+name = "cwnu_api"
 path = "src/lib.rs"
 crate-type = ["cdylib", "rlib"]
 
