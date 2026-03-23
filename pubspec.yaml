@@ -1,6 +1,6 @@
 name: cwnu_demo
 description: "专为西华师大学子设计的课表软件"
-version: 0.4.0+1
+version: 0.5.0+1
 license: MIT
 
 environment:
